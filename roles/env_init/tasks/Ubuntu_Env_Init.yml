@@ -1,0 +1,48 @@
+# SPDX-License-Identifier: MIT-0
+---
+# tasks file for roles/env_init
+# This role is to initialize the environment for OpenStack Yoga rebuild
+# It checks if the initialization tasks have been run before by looking for a mark file
+# If the mark file exists, it skips the tasks to avoid re-initialization
+# 通过设置标记文件来检查初始化任务是否已经运行过
+# 如果标记文件存在，则跳过任务以避免重新初始化
+- name: Check if the tasks has been running
+  block:
+    - name: Ensure Mark Directory Exists
+      ansible.builtin.file:
+        path: "{{ env_init_mark_dir_path }}"
+        state: directory
+        mode: '0755'
+
+    - name: Check if env_init tasks have been run
+      ansible.builtin.stat:
+        name: "{{ env_init_mark_file_path }}"
+      register: env_init_mark_file
+
+    - name: Skip if init_env tasks have been run
+      ansible.builtin.meta: end_role
+      when: env_init_mark_file.stat.exists
+
+# 这块是配置主机上的hosts文件，添加主机名和IP地址的映射
+# This block configures the hosts file on the host, adding mappings of hostnames to IP
+- name: Configure add host mappings to hosts file
+  ansible.builtin.blockinfile:
+    path: /etc/hosts
+    marker: "# {mark} ANSIBLE MANAGED BLOCK - INVENTORY HOSTS"
+    backup: true
+    block: |
+      {% for host in groups['all'] %}
+      {{ hostvars[host].ansible_host | default('127.0.0.1') }} {{ hostvars[host].inventory_hostname }}
+      {% endfor %}
+
+- name: Set hostnames
+  ansible.builtin.hostname:
+    name: "{{ inventory_hostname }}"
+
+- name: Stop firewall in target hosts(ubuntu's firewall is ufw)
+  ansible.builtin.service:
+    name: ufw
+    state: stopped
+    enabled: false
+
+
