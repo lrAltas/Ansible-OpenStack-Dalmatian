@@ -1,0 +1,2 @@
+[test]
+test_host ansible_host=10.1.10.150
