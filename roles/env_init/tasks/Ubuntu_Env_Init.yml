@@ -57,4 +57,3 @@
     name: ufw
     state: stopped
     enabled: false
-
