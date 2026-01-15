@@ -1,7 +1,7 @@
 [controller]
-ctl57 ansible_host=10.1.10.50
+controller ansible_host=10.1.10.50 fqdn=controller.openstcak.suying
 [compute]
-com57-01 ansible_host=10.1.10.51
-com57-02 ansible_host=10.1.10.52
+compute01 ansible_host=10.1.10.51  fqdn=compute01.openstack.suying
+compute02 ansible_host=10.1.10.52  fqdn=compute02.openstack.suying
 [skyline]
-sky57 ansible_host=10.1.10.49
+sky57 ansible_host=10.1.10.49 fqdn=skyline.openstack.suying
