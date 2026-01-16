@@ -29,17 +29,28 @@ server:
     chroot: ""
 
 # 正向解析：openstack.local. 域静态本地解析
-local-zone: "openstack.local." static
+local-zone: "{{ dns_server_openstack_local_domain }}." static
 
 #local-data: "controller.openstack.local.      IN A 10.1.10.200"
 #local-data: "compute01.openstack.local.      IN A 10.1.10.201"
 #local-data: "compute02.openstack.local.      IN A 10.1.10.202"
 
-# 反向解析 PTR（正确语法：直接写正向 IP + 主机名，Unbound 自动反转）
+#使用Ansible动态添加本地解析
+{% for host in groups['all'] %}
+local-data: "{{ hostvars[host].fqdn}}. IN A {{ hostvars[host].ansible_host}}"
+{% endfor %}
+
+#使用Ansible动态添加反向解析
 local-zone: "10.1.10.in-addr.arpa." static
-local-data-ptr: "10.1.10.200 controller.openstack.local."
-local-data-ptr: "10.1.10.201 compute01.openstack.local."
-local-data-ptr: "10.1.10.202 compute02.openstack.local."
+{% for host in groups['all'] %}
+local-data-ptr: "{{ hostvars[host].ansible_host}} {{ hostvars[host].fqdn}}."
+{% endfor %}
+
+# 反向解析 PTR（正确语法：直接写正向 IP + 主机名，Unbound 自动反转）
+#local-zone: "10.1.10.in-addr.arpa." static
+#local-data-ptr: "10.1.10.200 controller.openstack.local."
+#local-data-ptr: "10.1.10.201 compute01.openstack.local."
+#local-data-ptr: "10.1.10.202 compute02.openstack.local."
 
 # 外部所有查询转发到公共 DNS
 forward-zone:

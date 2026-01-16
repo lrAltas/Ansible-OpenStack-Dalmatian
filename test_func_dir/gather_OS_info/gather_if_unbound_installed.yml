@@ -1,0 +1,31 @@
+---
+- name: Check if dns server is installed and running
+  hosts: all
+  tasks:
+    - name: Check if dns server is installed and running
+      block:
+        - name: Gather facts of installed packages
+          ansible.builtin.package_facts:
+            manager: auto
+
+        - name: Gather facts of running services
+          ansible.builtin.service_facts:
+
+        - name: Check if dns server is installed
+          ansible.builtin.debug:
+            var: dns_server_unbound_installed_msg
+          vars:
+            dns_server_unbound_installed_msg:
+              - "Unbound安装状态"
+              - "已安装：{{ 'unbound' in ansible_facts.packages }}"
+              - "版本：{{ ansible_facts.packages.unbound[0].version if 'unbound' in ansible_facts.packages else '未安装' }}"
+
+        - name: Check if Unbound status
+          ansible.builtin.debug:
+            var: dns_server_unbound_status_msg
+          vars:
+            dns_server_unbound_status_msg:
+              - "Unbound服务状态:"
+              - "服务存在: {{ 'unbound' in ansible_facts.services }}"
+              - "运行状态：{{ ansible_facts.services['unbound'].status if 'unbound' in ansible_facts.services else '服务不存在' }}"
+              - "是否活跃: {{ (ansible_facts.services['unbound'].state == 'running') if 'unbound' in ansible_facts.services else false }}

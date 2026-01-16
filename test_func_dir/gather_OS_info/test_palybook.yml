@@ -1,0 +1,15 @@
+---
+- name: notebook
+  hosts: all
+  tasks:
+    - name: Gather facts of installed packages
+      ansible.builtin.
+      
+    - name: show ansible_facts.service
+      ansible.builtin.debug:
+        var: ansible_facts.service_facts
+
+    - name: print ansible_facts.service
+      ansible.builtin.debug:
+        msg: |
+          {{ ansible_facts.services_facts }}
