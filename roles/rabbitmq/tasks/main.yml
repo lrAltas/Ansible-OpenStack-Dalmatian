@@ -43,7 +43,7 @@
 # 2025-10-22 01:29:50.061 4991 ERROR nova
 # 2025-10-22 01:29:50.061 4991 ERROR nova During handling of the above exception, another exception occurred:
 # 2025-10-22 01:29:50.061 4991 ERROR nova
-# 解决方法也很简单（？）从RabbitMQ个个故故官方下载最新版的RabbitMQ即可应该是4.x版本的样子
+# 解决方法也很简单（？）从RabbitMQ官方下载最新版的RabbitMQ即可，应该是4.x版本的样子
 
 - name: Disable CentOS 9 Stream‘s RabbitMQ Repository
   block:

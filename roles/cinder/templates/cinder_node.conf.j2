@@ -1,15 +1,15 @@
 [DEFAULT]
-transport_url = rabbit://openstack:{{ cinder_openstack_rabbitmq_user_password }}@controller
+transport_url = rabbit://openstack:{{ cinder_openstack_rabbitmq_user_password }}@{{ hostvars[groups['controller'][0]].inventory_hostname }}
 auth_strategy = keystone
 my_ip = {{ ansible_host }}
 enabled_backends = lvm
-glance_api_servers = http://controller:9292
+glance_api_servers = http://{{ hostvars[groups['controller'][0]].inventory_hostname }}:9292
 [database]
-connection = mysql+pymysql://cinder:{{ cinder_db_conf.db_user_password }}@controller/cinder
+connection = mysql+pymysql://cinder:{{ cinder_db_conf.db_user_password }}@{{ hostvars[groups['controller'][0]].inventory_hostname }}/cinder
 [keystone_authtoken]
-www_authenticate_uri = http://controller:5000
-auth_url = http://controller:5000
-memcached_servers = controller:11211
+www_authenticate_uri = http://{{ hostvars[groups['controller'][0]].inventory_hostname }}:5000
+auth_url = http://{{ hostvars[groups['controller'][0]].inventory_hostname }}:5000
+memcached_servers = {{ hostvars[groups['controller'][0]].inventory_hostname }}:11211
 auth_type = password
 project_domain_name = default
 user_domain_name = default

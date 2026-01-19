@@ -67,7 +67,7 @@
       openstack.cloud.endpoint:
         service: placement
         endpoint_interface: "{{ item }}"
-        url: "http://{{ groups['controller'][0] }}:8778"
+        url: "http://{{ hostvars[groups['controller'][0]].inventory_hostname }}:8778"
         region: "{{ placement_region | default('RegionOne') }}"
         state: present
       loop:

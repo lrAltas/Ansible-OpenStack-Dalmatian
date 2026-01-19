@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: MIT-0
 ---
 # tasks file for roles/cinder/cinder_controller.yml
+# 检查是否已经运行过此剧本，运行过就跳过，如果需要重新运行，那么你要删除标记文件
 - name: Check if the tasks has been running
   block:
     - name: Ensure Mark Directory Exists
@@ -18,6 +19,7 @@
       ansible.builtin.meta: end_role
       when: cinder_mark_file.stat.exists
 
+# 创建Cinder所需的数据库和访问数据库的用户，远程和本地连接都需要
 - name: Create Cinder Database and User
   block:
     - name: Create Cinder Database
@@ -39,6 +41,7 @@
         - "localhost"
         - "%"
 
+# 创建Cinder服务，创建Cinder服务用户，创建Cinder服务用户密码，创建Cinder服务用户和角色，创建Cinder服务端点
 - name: Create Cinder Service User and endpoints
   block:
     - name: Create Cinder Service User in Default domain
@@ -70,10 +73,12 @@
         region_name: "{{ cinder_region }}"
         state: present
       loop:
-        - { endpoint_interface: public, url: "http://controller:8776/v3/%(project_id)s" }
-        - { endpoint_interface: internal, url: "http://controller:8776/v3/%(project_id)s" }
-        - { endpoint_interface: admin, url: "http://controller:8776/v3/%(project_id)s" }
+        - { endpoint_interface: public, url: "http://{{ hostvars[groups['controller'][0]].inventory_hostname }}:8776/v3/%(project_id)s" }
+        - { endpoint_interface: internal, url: "http://{{ hostvars[groups['controller'][0]].inventory_hostname }}:8776/v3/%(project_id)s" }
+        - { endpoint_interface: admin, url: "http://{{ hostvars[groups['controller'][0]].inventory_hostname }}:8776/v3/%(project_id)s" }
 
+
+#  安装对应软件包
 - name: Install and Configure Cinder
   block:
     - name: Install Cinder Packages
@@ -87,6 +92,8 @@
         dest: "{{ cinder_conf_path }}"
         mode: "0644"
 
+
+# 同步Cinder数据库
 - name: Sync Cinder Database
   block:
     - name: Ensure Cinder database is synced
@@ -109,6 +116,10 @@
       ansible.builtin.debug:
         msg: "{{ cinder_db_sync.stdout_lines | default([]) }}"
 
+# 配置Nova服务，让Nova选择Cinder作为块存储服务
+# 对于该项目内部，我们需要注意一点，因为是使用Ceph作为存储后端
+# 所以对于Cinder的配置，我们需要将Cinder的块存储后端设置为ceph，如果是使用本机存储，也就是单独使用cinder-volume，它的配置和Ceph作为后端存储不太一样
+# 所以我们这里是等Ceph部署成功之后再去跑Cinder服务的剧本。
 - name: Configure Nova to Use Cinder
   community.general.ini_file:
     path: "{{ cinder_conf_path.nova_conf }}"
