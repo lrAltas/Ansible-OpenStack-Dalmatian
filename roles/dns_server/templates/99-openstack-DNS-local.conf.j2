@@ -22,7 +22,7 @@ server:
     prefetch: yes
 
     # 日志（可选，调试时可打开）
-    logfile: "/var/log/unbound/unbound.log"
+    logfile: "{{ dns_server_unbound_log_file }}"
     log-queries: no
 
     # 关闭 chroot（简化常见问题）
@@ -37,13 +37,13 @@ local-zone: "{{ dns_server_openstack_local_domain }}." static
 
 #使用Ansible动态添加本地解析
 {% for host in groups['all'] %}
-local-data: "{{ hostvars[host].fqdn}}. IN A {{ hostvars[host].ansible_host}}"
+local-data: "{{ host }}. IN A {{ hostvars[host].ansible_host }}"
 {% endfor %}
 
 #使用Ansible动态添加反向解析
 local-zone: "10.1.10.in-addr.arpa." static
 {% for host in groups['all'] %}
-local-data-ptr: "{{ hostvars[host].ansible_host}} {{ hostvars[host].fqdn}}."
+local-data-ptr: "{{ hostvars[host].ansible_host}} {{ host }}."
 {% endfor %}
 
 # 反向解析 PTR（正确语法：直接写正向 IP + 主机名，Unbound 自动反转）

@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MIT-0
 ---
 # tasks file for roles/dns_server
-#检查服务器之前是否运行过成功过该剧本，运行过就直接跳过，如果需要重新运行，那么你要删除标记文件
+# 检查服务器之前是否运行过成功过该剧本，运行过就直接跳过，如果需要重新运行，那么你要删除标记文件
 - name: Check if the tasks has been running
   block:
     - name: Ensure Mark Directory Exists
@@ -19,67 +19,82 @@
       ansible.builtin.meta: end_role
       when: dns_server_mark_file.stat.exists
 
-#通过判断包是否存在来判断下一步是安装还是继续执行其他任务的命令
+# 通过判断包是否存在来判断下一步是安装还是继续执行其他任务的命令
 - name: Check if dns server is installed and running
   block:
-    #这个地方是用来收集已经安装的包的信息
+    # 这个地方是用来收集已经安装的包的信息
     - name: Gather facts of installed packages
       ansible.builtin.package_facts:
         manager: auto
 
-    #这里记录了一个不需要安装的值，如果包存在就返回一个True
+    # 这里记录了一个不需要安装的值，如果包存在就返回一个True
     - name: Check if unbound package status
       ansible.builtin.set_fact:
-        dns_server_unbound_installed: "{{ 'unbound' in ansible_facts.packages }}"
+        dns_server_packages_installed: "{{ 'unbound' in ansible_facts.packages }}"
 
-    #这里记录了一个需要安装的值,如果包不存在就返回一个True
+    # 这里记录了一个需要安装的值,如果包不存在就返回一个True
     - name: Register unbound package status
       ansible.builtin.set_fact:
         dns_server_packages_need_install: "{{ 'unbound' not in ansible_facts.packages }}"
 
-    #打印包状态
+    # 打印包状态
     - name: Print unbound package status
       ansible.builtin.debug:
         msg:
-        - "Unbound package status:"
-        - "Unbound {{ 'Has been installed' if 'unbound' in ansible_facts.packages else 'Has not been installed' }}"
-       when: dns_server_packages_installed
-
-    #记录服务状态
-    - name: Register unbound service is-active status
-      ansible.builtin.command: systemctl is-active unbound
-      register: dns_server_unbound_service_is-active_status
-      ignore_errors: true
+          - "Unbound package status:"
+          - "Unbound {{ 'Has been installed' if 'unbound' in ansible_facts.packages else 'Has not been installed' }}"
       when: dns_server_packages_installed
 
-    #记录服务状态
-    - name: Register unbound service is-enabled status
-      ansible.builtin.command: systemctl is-enabled unbound
-      register: dns_server_unbound_service_is-enabled_status
-      ignore_errors: true
+    # 记录服务状态
+    - name: Register unbound service status
+      # ansible.builtin.shell: systemctl is-active unbound
+      # register: dns_server_unbound_service_is_active_status
+      # ignore_errors: true
+      # when: dns_server_packages_installed
+      # changed_when: false
+      ansible.builtin.systemd_service:
+        name: unbound
+      register: dns_server_unbound_service_info
       when: dns_server_packages_installed
 
-    #打印服务状态
+
+    # 记录服务状态
+    # - name: Register unbound service is-enabled status
+      # ansible.builtin.shell: systemctl is-enabled unbound
+      # register: dns_server_unbound_service_is_enabled_status
+      # ignore_errors: true
+      # when: dns_server_packages_installed
+      # changed_when: false
+
+
+    # 打印服务状态
     - name: Print unbound service status debug
       ansible.builtin.debug:
         msg:
-        - "Unbound service status:"
-        - "Unbound service is {{ dns_server_unbound_service_is-active_status.stdout }} and {{ dns_server_unbound_service_is-enabled_status.stdout }}"
+          - "Unbound service status:"
+          - "Unbound service is {{ dns_server_unbound_service_info.status.ActiveState }} and {{ dns_server_unbound_service_info.status.UnitFileState }}"
       when: dns_server_packages_installed
 
-    #如果包不存在的包，就进行安装
+    # 如果包不存在的包，就进行安装
     - name: Start install DNS Server Packages(unbound)
       ansible.builtin.package:
         name: "{{ dns_server_packages }}"
         state: present
       when: dns_server_packages_need_install
 
-#从模板配置文件夹渲染到目标主机的配置文件
+# 从模板配置文件夹渲染到目标主机的配置文件
 - name: Configure Unbound DNS Server
   ansible.builtin.template:
-    src: template/99-openstack-local.conf.j2
+    src: templates/99-openstack-DNS-local.conf.j2
     dest: /etc/unbound/conf.d/99-openstack-DNS-local.conf
     mode: "0644"
+    backup: true
+
+- name: Ensure log directory exists
+  ansible.builtin.file:
+    path: "{{ dns_server_unbound_log_dir }}"
+    state: directory
+    mode: '0755'
 
 - name: Make sure Unbound DNS Server is running
   ansible.builtin.service:

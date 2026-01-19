@@ -1,0 +1,5 @@
+---
+- name: Deploy DNS Server
+  hosts: dns.openstack.suying
+  roles:
+    - dns_server

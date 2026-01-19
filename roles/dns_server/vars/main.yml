@@ -1,4 +1,4 @@
-#SPDX-License-Identifier: MIT-0
+# SPDX-License-Identifier: MIT-0
 ---
 # vars file for roles/dns_server
 dns_server_mark_dir_path: /root/.marks
@@ -7,6 +7,9 @@ dns_server_success_mark_file_path: "{{ dns_server_mark_dir_path }}/dns_server_in
 dns_server_packages:
   - unbound
 
-#正常来说你的这个domain的屁股后面其实还要在带一个.的，但是我这里做渲染的时候把这个点给放到模版变量外面了
-#所以不用再加上一个点
+# 正常来说你的这个domain的屁股后面其实还要在带一个.的，但是我这里做渲染的时候把这个点给放到模版变量外面了
+# 所以不用再加上一个点
 dns_server_openstack_local_domain: openstack.suying
+
+dns_server_unbound_log_dir: /var/log/unbound
+dns_server_unbound_log_file: "{{ dns_server_unbound_log_dir }}/unbound.log"

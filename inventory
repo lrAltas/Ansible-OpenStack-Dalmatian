@@ -1,7 +1,9 @@
 [controller]
-controller ansible_host=10.1.10.50 fqdn=controller.openstack.suying
+controller.openstack.suying ansible_host=10.1.10.50
 [compute]
-compute01 ansible_host=10.1.10.51  fqdn=compute01.openstack.suying
-compute02 ansible_host=10.1.10.52  fqdn=compute02.openstack.suying
+compute01.openstack.suying ansible_host=10.1.10.51
+compute02.openstack.suying ansible_host=10.1.10.52
 [skyline]
-sky57 ansible_host=10.1.10.49 fqdn=skyline.openstack.suying
+skyline.openstack.suying ansible_host=10.1.10.49
+[dns_server]
+dns.openstack.suying ansible_host=10.1.10.250
