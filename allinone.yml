@@ -1,6 +1,6 @@
 ---
 - name: Init env
-  hosts: all
+  hosts: controller,compute
   serial: 1
   roles:
     - env_init
@@ -26,14 +26,14 @@
     - neutron
 
 
-- name: Configure skyline controller node
-  hosts: controller
-  serial: 4
-  roles:
-    - skyline
+# - name: Configure skyline controller node
+#   hosts: controller
+#   serial: 4
+#   roles:
+#     - skyline
 
-- name: Configure Skyline Node
-  hosts: skyline
-  serial: 5
-  roles:
-    - skyline
+# - name: Configure Skyline Node
+#   hosts: skyline
+#   serial: 5
+#   roles:
+#     - skyline

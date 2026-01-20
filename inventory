@@ -1,9 +1,9 @@
 [controller]
-controller.openstack.suying ansible_host=10.1.10.50
+controller.openstack.suying ansible_host=10.1.10.200
 [compute]
-compute01.openstack.suying ansible_host=10.1.10.51
-compute02.openstack.suying ansible_host=10.1.10.52
+compute01.openstack.suying ansible_host=10.1.10.201
+compute02.openstack.suying ansible_host=10.1.10.202
 [skyline]
-skyline.openstack.suying ansible_host=10.1.10.49
+skyline.openstack.suying ansible_host=10.1.10.203
 [dns_server]
-dns.openstack.suying ansible_host=10.1.10.250
+dns.openstack.suying ansible_host=10.1.10.199

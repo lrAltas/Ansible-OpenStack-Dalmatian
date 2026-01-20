@@ -23,17 +23,17 @@
       ansible.builtin.meta: end_role
       when: env_init_mark_file.stat.exists
 
-# 这块是配置主机上的hosts文件，添加主机名和IP地址的映射
+# 这块是配置主机上的hosts文件，添加主机名和IP地址的映射,如果你不考虑使用DNS服务器进行地址解析的话,你需要把28-35行的注释去掉
 # This block configures the hosts file on the host, adding mappings of hostnames to IP
-- name: Configure add host mappings to hosts file
-  ansible.builtin.blockinfile:
-    path: /etc/hosts
-    marker: "# {mark} ANSIBLE MANAGED BLOCK - INVENTORY HOSTS"
-    backup: true
-    block: |
-      {% for host in groups['all'] %}
-      {{ hostvars[host].ansible_host | default('127.0.0.1') }} {{ hostvars[host].inventory_hostname }}
-      {% endfor %}
+# - name: Configure add host mappings to hosts file
+#   ansible.builtin.blockinfile:
+#     path: /etc/hosts
+#     marker: "# {mark} ANSIBLE MANAGED BLOCK - INVENTORY HOSTS"
+#     backup: true
+#     block: |
+#       {% for host in groups['all'] %}
+#       {{ hostvars[host].ansible_host | default('127.0.0.1') }} {{ hostvars[host].inventory_hostname }}
+#       {% endfor %}
 
 # 弃用的写法
 # - name: Configure add host_namppings to hosts file
