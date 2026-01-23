@@ -1,0 +1,4 @@
+- name: Deploy Dashboard
+  hosts: controller.openstack.suying
+  roles:
+    - dashboard

@@ -25,45 +25,73 @@
         name: "{{ dashboard_packages }}"
         state: present
 
-    - name: OpenStack Horizon Static Resources
-      block:
-        - name: Deploy Configuration Files
-          ansible.builtin.template:
-            src: "{{ item.src }}"
-            dest: "{{ item.dest }}"
-            mode: "0644"
-          loop:
-            - { src: "{{ dashboard_conf_template_src_path.local_settings }}", dest: "{{ dashboard_conf_path.local_settings }}" }
-            - { src: "{{ dashboard_conf_template_src_path.defaults_py }}", dest: "{{ dashboard_conf_path.defaults_py }}" }
-            - { src: "{{ dashboard_conf_template_src_path.openstack_dashboard_conf }}", dest: "{{ dashboard_conf_path.openstack_dashboard_conf }}" }
-            - { src: "{{ dashboard_conf_template_src_path.settings_py }}", dest: "{{ dashboard_conf_path.settings_py }}" }
+    # - name: OpenStack Horizon Static Resources
+    #   block:
+    #     - name: Deploy Configuration Files
+    #       ansible.builtin.template:
+    #         src: "{{ item.src }}"
+    #         dest: "{{ item.dest }}"
+    #         mode: "0644"
+    #       loop:
+    #         - { src: "{{ dashboard_conf_template_src_path.local_settings }}", dest: "{{ dashboard_conf_path.local_settings }}" }
+    #         - { src: "{{ dashboard_conf_template_src_path.defaults_py }}", dest: "{{ dashboard_conf_path.defaults_py }}" }
+    #         - { src: "{{ dashboard_conf_template_src_path.openstack_dashboard_conf }}", dest: "{{ dashboard_conf_path.openstack_dashboard_conf }}" }
+    #         - { src: "{{ dashboard_conf_template_src_path.settings_py }}", dest: "{{ dashboard_conf_path.settings_py }}" }
 
-        - name: Collection Horizon Static Resources
-          ansible.builtin.command:
-            cmd: python3 manage.py collectstatic --noinput --clear
-          args:
-            chdir: /usr/share/openstack-dashboard
-          become: true
-          become_user: apache
-          changed_when: false
+    #     - name: Collection Horizon Static Resources
+    #       ansible.builtin.command:
+    #         cmd: python3 manage.py collectstatic --noinput --clear
+    #       args:
+    #         chdir: /usr/share/openstack-dashboard
+    #       become: true
+    #       become_user: apache
+    #       changed_when: false
 
-        - name: Compress Horizon Static Files
-          ansible.builtin.command:
-            cmd: python3 manage.py compress --force
-          args:
-            chdir: /usr/share/openstack-dashboard
-          become: true
-          become_user: apache
-          changed_when: false
+    #     - name: Compress Horizon Static Files
+    #       ansible.builtin.command:
+    #         cmd: python3 manage.py compress --force
+    #       args:
+    #         chdir: /usr/share/openstack-dashboard
+    #       become: true
+    #       become_user: apache
+    #       changed_when: false
 
-        - name: Restart Service releated to Horizon
-          ansible.builtin.service:
-            name: "{{ item }}"
-            state: restarted
-            enabled: true
-          loop:
-            - httpd
-            - memcached
+    #     - name: Restart Service releated to Horizon
+    #       ansible.builtin.service:
+    #         name: "{{ item }}"
+    #         state: restarted
+    #         enabled: true
+    #       loop:
+    #         - httpd
+    #         - memcached
+    - name: Backup default openstack-dashboard.conf
+      ansible.builtin.copy:
+        src: "{{ dashboard_conf_path.httpd_conf_file }}"
+        dest: "{{ dashboard_conf_path.httpd_conf_file }}.bak"
+        remote_src: true
+        mode: "0644"
+
+    - name: Configure Horizon local_settings
+      ansible.builtin.template:
+        src: "{{ dashboard_conf_template_src_path.local_settings }}"
+        dest: "{{ dashboard_conf_path.local_settings }}"
+        mode: "0644"
+
+    - name: Configure OpenStack Dashboard Apache Conf
+      ansible.builtin.template:
+        src: "{{ dashboard_conf_template_src_path.httpd_conf_file }}"
+        dest: "{{ dashboard_conf_path.httpd_conf_file }}"
+        mode: "0644"
+
+- name: Restart related services
+  ansible.builtin.service:
+    name: "{{ item }}"
+    state: restarted
+    enabled: true
+  loop:
+    - httpd
+    - memcached
+
 
 - name: Create mark file to indicate that the tasks have been run
   ansible.builtin.file:
