@@ -1,0 +1,7 @@
+如果存在以下问题
+[Fri Jan 23 11:17:49.951301 2026] [wsgi:error] [pid 4749:tid 4956] [remote 10.1.10.1:46084] ERROR openstack_auth.policy Failed to open the policy file for image /usr/share/openstack-dashboard/openstack_dashboard/conf/default_policies/glance.yaml: [Errno 2] No such file or directory: '/usr/share/openstack-dashboard/openstack_dashboard/conf/default_policies/glance.yaml'
+[Fri Jan 23 11:17:49.951549 2026] [wsgi:error] [pid 4749:tid 4956] [remote 10.1.10.1:46084] WARNING openstack_auth.policy No policy rules for service 'image' in /usr/share/openstack-dashboard/openstack_dashboard/conf/glance_policy.yaml
+[Fri Jan 23 11:17:49.953262 2026] [wsgi:error] [pid 4749:tid 4956] [remote 10.1.10.1:46084] ERROR openstack_auth.policy Failed to open the policy file for network /usr/share/openstack-dashboard/openstack_dashboard/conf/default_policies/neutron.yaml: [Errno 2] No such file or directory: '/usr/share/openstack-dashboard/openstack_dashboard/conf/default_policies/neutron.yaml'
+[Fri Jan 23 11:17:49.953473 2026] [wsgi:error] [pid 4749:tid 4956] [remote 10.1.10.1:46084] WARNING openstack_auth.policy No policy rules for service 'network' in /usr/share/openstack-dashboard/openstack_dashboard/conf/neutron_policy.yaml
+这种情况多半是因为rdo仓库里面没有在local_settings里面设定具体的policy位置,我看网上给了两个解法
+一个是从/etc/openstack-daashboard/default_policies下面把所有的policies文件复制过去,另一个就是在local_settings里面指定POLICY_FILES_PATH = '/etc/openstack-dashboard'

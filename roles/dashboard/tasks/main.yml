@@ -77,6 +77,20 @@
         dest: "{{ dashboard_conf_path.local_settings }}"
         mode: "0644"
 
+    - name: Ensure dashboard policy destination directory exists
+      ansible.builtin.file:
+        path: "{{ dashboard_conf_path.dashboard_policy_dest_dir_path }}"
+        state: directory
+        mode: "0755"
+
+    - name: Copy policy files to /usr/share/openstack-dashboard/openstack_dashboard/conf
+      ansible.builtin.copy:
+        src: "{{ dashboard_conf_path.dashboard_policy_src_dir_path }}"
+        dest: "{{ dashboard_conf_path.dashboard_policy_dest_dir_path }}"
+        remote_src: true
+        mode: "0644"
+        directory_mode: true
+
     - name: Configure OpenStack Dashboard Apache Conf
       ansible.builtin.template:
         src: "{{ dashboard_conf_template_src_path.httpd_conf_file }}"

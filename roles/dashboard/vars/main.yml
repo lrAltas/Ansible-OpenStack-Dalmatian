@@ -21,3 +21,5 @@ dashboard_conf_path:
   openstack_dashboard_conf: /etc/httpd/conf.d/openstack-dashboard.conf
   settings_py: /usr/share/openstack-dashboard/openstack_dashboard/test/settings.py
   httpd_conf_file: /etc/httpd/conf.d/openstack-dashboard.conf
+  dashboard_policy_src_dir_path: /etc/openstack-dashboard/default_policies
+  dashboard_policy_dest_dir_path: /usr/share/openstack-dashboard/openstack_dashboard/conf
