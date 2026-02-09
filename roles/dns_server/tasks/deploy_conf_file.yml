@@ -1,0 +1,14 @@
+---
+# 从模板配置文件夹渲染到目标主机的配置文件
+- name: Configure Unbound DNS Server
+  ansible.builtin.template:
+    src: templates/99-openstack-DNS-local.conf.j2
+    dest: /etc/unbound/conf.d/99-openstack-DNS-local.conf
+    mode: "0644"
+    backup: true
+
+- name: Ensure log directory exists
+  ansible.builtin.file:
+    path: "{{ dns_server_unbound_log_dir }}"
+    state: directory
+    mode: '0755'

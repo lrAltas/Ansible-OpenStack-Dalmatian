@@ -1,0 +1,12 @@
+---
+- name: Make sure Unbound DNS Server is running
+  ansible.builtin.service:
+    name: unbound
+    state: started
+    enabled: true
+
+- name: Restart Unbound DNS Server
+  ansible.builtin.service:
+    name: unbound
+    state: restarted
+    enabled: true

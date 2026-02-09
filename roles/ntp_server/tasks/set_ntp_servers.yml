@@ -1,0 +1,20 @@
+---
+- name: Configure all nodes except NTP server to use NTP server
+  ansible.builtin.template:
+    src: ntp_client_chrony_debian.conf.j2
+    dest: "{{ ntp_server_conf_path.debian }}"
+    mode: "0644"
+    backup: true
+  when: ansible_os_family == "Debian"
+  tags:
+    - configure_ntp_clients
+
+- name: Configure all nodes except NTP server to use NTP server
+  ansible.builtin.template:
+    src: ntp_client_chrony_redhat.conf.j2
+    dest: "{{ ntp_server_conf_path.redhat }}"
+    mode: "0644"
+    backup: true
+  when: ansible_os_family == "RedHat"
+  tags:
+    - configure_ntp_clients

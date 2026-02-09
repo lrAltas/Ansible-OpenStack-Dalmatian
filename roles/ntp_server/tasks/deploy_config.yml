@@ -1,0 +1,27 @@
+---
+- name: Deploy Chrony Service Configuration File(Debian Family)
+  ansible.builtin.template:
+    src: "{{ ntp_server_conf_template_src_path.debian }}"
+    dest: "{{ ntp_server_conf_path.debian }}"
+    mode: "0644"
+    backup: true
+  when: ansible_facts.os_family == "Debian"
+  tags:
+    - debian
+
+- name: Deploy Chrony Service Configuration File(RedHat Family)
+  ansible.builtin.template:
+    src: "{{ ntp_server_conf_template_src_path.redhat }}"
+    dest: "{{ ntp_server_conf_path.redhat }}"
+    mode: "0644"
+    backup: true
+  when: ansible_facts.os_family == "RedHat"
+  tags:
+    - redhat
+
+- name: Set timedateconf to use NTP
+  ansible.builtin.command:
+    cmd: timedatectl set-ntp true
+  changed_when: false
+  tags:
+    - set_system_use_ntp_sync

@@ -1,0 +1,23 @@
+# SPDX-License-Identifier: MIT-0
+---
+# vars file for roles/ntp_server
+ntp_server_mark_dir_path: /root/.marks
+ntp_server_mark_file_path: "{{ ntp_server_mark_dir_path }}/ntp_server_success.mark"
+
+ntp_server_conf_template_src_path:
+  debian: "ntp_server_chrony_debian.conf.j2"
+  redhat: "ntp_server_chrony_redhat.conf.j2"
+
+ntp_server_conf_path:
+  debian: "/etc/chrony/chrony.conf"
+  redhat: "/etc/chrony.conf"
+
+ntp_server_redhat_packages:
+  - chrony
+
+ntp_server_debian_packages:
+  - chrony
+
+ntp_server_domain: dns.openstack.suying
+
+ntp_server_service_name: chronyd

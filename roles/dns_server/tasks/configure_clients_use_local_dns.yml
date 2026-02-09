@@ -1,0 +1,13 @@
+---
+- name: Configure clients to use local DNS server
+  community.general.nmcli:
+    conn_name: "{{ dns_server_connection_name }}"
+    state: present
+    type: ethernet
+    dns4: "{{ hostvars[groups['dns_server'][0]]['ansible_host'] }}"
+
+- name: Restart Network Manager to apply DNS changes
+  ansible.builtin.service:
+    name: NetworkManager
+    state: restarted
+    enabled: true

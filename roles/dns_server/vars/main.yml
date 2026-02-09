@@ -13,3 +13,5 @@ dns_server_openstack_local_domain: openstack.suying
 
 dns_server_unbound_log_dir: /var/log/unbound
 dns_server_unbound_log_file: "{{ dns_server_unbound_log_dir }}/unbound.log"
+
+dns_server_connection_name: enp1s0

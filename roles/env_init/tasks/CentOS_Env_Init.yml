@@ -98,44 +98,46 @@
 # Next, we need to configure the NTP service to ensure time synchronization across all nodes
 # You can use online NTP servers, such as Alibaba Cloud's NTP server
 # If conditions permit, you can also set up your own NTP server
-- name: Configure NTP service
-  block:
-    - name: Ensure NTP service exists(RHEL/CentOS use chrony as NTP service)
-      ansible.builtin.dnf:
-        name: chrony
-        state: present
+# 关于ntp的设置已经专门使用一个单独的Role来进行配置,DNS和NTP可以使用一台服务器,并且NTP服务器和DNS
+# 服务器的部署要在env_init之前完成
+# - name: Configure NTP service
+#   block:
+#     - name: Ensure NTP service exists(RHEL/CentOS use chrony as NTP service)
+#       ansible.builtin.dnf:
+#         name: chrony
+#         state: present
 
-    - name: Configure NTP servers
-      ansible.builtin.template:
-        src: "{{ env_init_ntp_template_src }}"
-        dest: "{{ env_init_ntp_conf_path }}"
-        mode: '0644'
-        owner: root
-        group: root
+#     - name: Configure NTP servers
+#       ansible.builtin.template:
+#         src: "{{ env_init_ntp_template_src }}"
+#         dest: "{{ env_init_ntp_conf_path }}"
+#         mode: '0644'
+#         owner: root
+#         group: root
 
-    - name: Start if chronyd is not started
-      ansible.builtin.service:
-        name: chronyd
-        state: started
-        enabled: true
+#     - name: Start if chronyd is not started
+#       ansible.builtin.service:
+#         name: chronyd
+#         state: started
+#         enabled: true
 
-    - name: Restart NTP service(chronyd usually has been started and enabled after installation of system)
-      ansible.builtin.service:
-        name: chronyd
-        state: restarted
-        enabled: true
+#     - name: Restart NTP service(chronyd usually has been started and enabled after installation of system)
+#       ansible.builtin.service:
+#         name: chronyd
+#         state: restarted
+#         enabled: true
 
-    - name: Set timedateconf to use NTP
-      ansible.builtin.command:
-        cmd: timedatectl set-ntp true
-      changed_when: false
+#     - name: Set timedateconf to use NTP
+#       ansible.builtin.command:
+#         cmd: timedatectl set-ntp true
+#       changed_when: false
 
-    - name: Check chronyd's ntp_server
-      ansible.builtin.command: |
-        chronyc sources -v | grep '^\^\*'
-      register: env_init_chrony_server
-      changed_when: false
-      ignore_errors: true
+#     - name: Check chronyd's ntp_server
+#       ansible.builtin.command: |
+#         chronyc sources -v | grep '^\^\*'
+#       register: env_init_chrony_server
+#       changed_when: false
+#       ignore_errors: true
 
 # 接下来我们要禁用SElinux，因为SElinux在OpenStack中通常会与Nova服务有冲突
 # Next, we need to disable SELinux, as SELinux often conflicts with Nova services in OpenStack

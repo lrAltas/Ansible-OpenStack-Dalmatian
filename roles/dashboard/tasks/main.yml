@@ -106,7 +106,6 @@
     - httpd
     - memcached
 
-
 - name: Create mark file to indicate that the tasks have been run
   ansible.builtin.file:
     path: "{{ dashboard_mark_files_path.dashboard_conf_success }}"

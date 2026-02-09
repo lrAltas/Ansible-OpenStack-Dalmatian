@@ -1,0 +1,13 @@
+---
+- name: Deploy dns server
+  hosts: dns_server,dns_clients
+  serial: 1
+  roles:
+    - dns_server
+
+
+- name: Deploy ntp server
+  hosts: ntp_servers,ntp_clients
+  serial: 2
+  roles:
+    - ntp_server

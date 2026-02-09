@@ -1,0 +1,50 @@
+---
+- name: Ensure NTP service is started and enabled
+  ansible.builtin.service:
+    name: "{{ ntp_server_service_name }}"
+    state: started
+    enabled: true
+  tags:
+    - ensure_service_running
+
+- name: Ensure NTP service is restarted if configuration changed
+  ansible.builtin.service:
+    name: "{{ ntp_server_service_name }}"
+    state: restarted
+  tags:
+    - ensure_service_restarted
+
+- name: Ensure NTP server can sync time
+  ansible.builtin.command: chronyc makestep
+  changed_when: false
+  tags:
+    - ensure_time_synced
+
+- name: Check timedatectl status
+  ansible.builtin.command:
+    cmd: timedatectl status
+  register: ntp_server_timedatectl_status
+  changed_when: false
+  tags:
+    - check_timedatectl_status
+
+- name: Print timedatectl status
+  ansible.builtin.debug:
+    msg: "{{ ntp_server_timedatectl_status.stdout_lines }}"
+  tags:
+    - check_timedatectl_status
+
+- name: Check chronyd's ntp_server
+  ansible.builtin.command: |
+    chronyc sources -v | grep '^\^\*'
+  register: ntp_server_chrony_server
+  changed_when: false
+  ignore_errors: true
+  tags:
+    - check_chrony_ntp_server
+
+- name: Print chronyd's ntp_server
+  ansible.builtin.debug:
+    msg: "{{ ntp_server_chrony_server.stdout_lines }}"
+  tags:
+    - check_chrony_ntp_server

@@ -1,0 +1,67 @@
+# SPDX-License-Identifier: MIT-0
+---
+# tasks file for roles/ntp_server
+- name: Check if the tasks has been running
+  when: "'ntp_servers' in group_names"
+  tags:
+    - install
+    - check_mark_file
+  block:
+    - name: Ensure Mark Directory Exists
+      ansible.builtin.file:
+        path: "{{ ntp_server_mark_dir_path }}"
+        state: directory
+        mode: '0755'
+
+    - name: Check if ntp_server tasks have been run
+      ansible.builtin.stat:
+        name: "{{ ntp_server_mark_file_path }}"
+      register: ntp_server_mark_file
+
+    - name: Skip if ntp_server tasks have been run
+      ansible.builtin.meta: end_role
+      when: ntp_server_mark_file.stat.exists
+
+- name: Install necessary NTP server packages
+  ansible.builtin.import_tasks: install_packages.yml
+  tags:
+    - install
+  when: "'ntp_servers' in group_names"
+
+- name: Deploy NTP server configuration files
+  ansible.builtin.import_tasks: deploy_config.yml
+  tags:
+    - install
+    - config
+  when: "'ntp_servers' in group_names"
+
+- name: Ensure NTP service is started and enabled
+  ansible.builtin.import_tasks: ensure_running.yml
+  tags:
+    - install
+    - ensure_running
+  when: "'ntp_servers' in group_names"
+
+- name: Configure all node except NTP Server to use local NTP Server
+  ansible.builtin.import_tasks: set_ntp_servers.yml
+  tags:
+    - install
+    - configure_ntp_clients
+  when: "'ntp_clients' in group_names"
+
+- name: Restart NTP service on NTP clients if configuration changed
+  ansible.builtin.import_tasks: ensure_running.yml
+  when: "'ntp_clients' in group_names"
+  tags:
+    - install
+    - restart_ntp_clients_service
+
+- name: Create mark file to indicate ntp_server tasks have been run
+  ansible.builtin.file:
+    path: "{{ ntp_server_mark_file_path }}"
+    state: touch
+    mode: '0644'
+  tags:
+    - install
+    - create_mark_file
+  when: "'ntp_servers' in group_names"

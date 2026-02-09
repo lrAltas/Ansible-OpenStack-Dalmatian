@@ -1,7 +1,0 @@
----
-- name: Configure Skyline Node
-  hosts: skyline
-  serial: 4
-  roles:
-    - env_init
-    - skyline

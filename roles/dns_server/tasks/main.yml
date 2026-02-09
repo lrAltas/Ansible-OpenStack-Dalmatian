@@ -3,6 +3,10 @@
 # tasks file for roles/dns_server
 # 检查服务器之前是否运行过成功过该剧本，运行过就直接跳过，如果需要重新运行，那么你要删除标记文件
 - name: Check if the tasks has been running
+  tags:
+    - install
+    - check_mark_file
+  when: "'dns_server' in group_names"
   block:
     - name: Ensure Mark Directory Exists
       ansible.builtin.file:
@@ -19,107 +23,46 @@
       ansible.builtin.meta: end_role
       when: dns_server_mark_file.stat.exists
 
-# 通过判断包是否存在来判断下一步是安装还是继续执行其他任务的命令
-- name: Check if dns server is installed and running
-  block:
-    # 这个地方是用来收集已经安装的包的信息
-    - name: Gather facts of installed packages
-      ansible.builtin.package_facts:
-        manager: auto
+- name: Install DNS Server Packages
+  ansible.builtin.import_tasks: install_packages.yml
+  tags:
+    - install
+  when: "'dns_server' in group_names"
 
-    # 这里记录了一个不需要安装的值，如果包存在就返回一个True
-    - name: Check if unbound package status
-      ansible.builtin.set_fact:
-        dns_server_packages_installed: "{{ 'unbound' in ansible_facts.packages }}"
+- name: Deploy DNS Server Configuration Files
+  ansible.builtin.import_tasks: deploy_conf_file.yml
+  tags:
+    - install
+    - config
+  when: "'dns_server' in group_names"
 
-    # 这里记录了一个需要安装的值,如果包不存在就返回一个True
-    - name: Register unbound package status
-      ansible.builtin.set_fact:
-        dns_server_packages_need_install: "{{ 'unbound' not in ansible_facts.packages }}"
+- name: Configure firewall for DNS Server
+  ansible.builtin.import_tasks: configrue_firewalld.yml
+  tags:
+    - install
+    - configure_DNS_Server_firewall
+  when: "'dns_server' in group_names"
 
-    # 打印包状态
-    - name: Print unbound package status
-      ansible.builtin.debug:
-        msg:
-          - "Unbound package status:"
-          - "Unbound {{ 'Has been installed' if 'unbound' in ansible_facts.packages else 'Has not been installed' }}"
-      when: dns_server_packages_installed
+- name: Ensure DNS Service is started and enabled
+  ansible.builtin.import_tasks: ensure_service_running.yml
+  tags:
+    - install
+    - ensure_running
+  when: "'dns_server' in group_names"
 
-    # 记录服务状态
-    - name: Register unbound service status
-      # ansible.builtin.shell: systemctl is-active unbound
-      # register: dns_server_unbound_service_is_active_status
-      # ignore_errors: true
-      # when: dns_server_packages_installed
-      # changed_when: false
-      ansible.builtin.systemd_service:
-        name: unbound
-      register: dns_server_unbound_service_info
-      when: dns_server_packages_installed
-
-
-    # 记录服务状态
-    # - name: Register unbound service is-enabled status
-      # ansible.builtin.shell: systemctl is-enabled unbound
-      # register: dns_server_unbound_service_is_enabled_status
-      # ignore_errors: true
-      # when: dns_server_packages_installed
-      # changed_when: false
-
-
-    # 打印服务状态
-    - name: Print unbound service status debug
-      ansible.builtin.debug:
-        msg:
-          - "Unbound service status:"
-          - "Unbound service is {{ dns_server_unbound_service_info.status.ActiveState }} and {{ dns_server_unbound_service_info.status.UnitFileState }}"
-      when: dns_server_packages_installed
-
-    # 如果包不存在的包，就进行安装
-    - name: Start install DNS Server Packages(unbound)
-      ansible.builtin.package:
-        name: "{{ dns_server_packages }}"
-        state: present
-      when: dns_server_packages_need_install
-
-# 从模板配置文件夹渲染到目标主机的配置文件
-- name: Configure Unbound DNS Server
-  ansible.builtin.template:
-    src: templates/99-openstack-DNS-local.conf.j2
-    dest: /etc/unbound/conf.d/99-openstack-DNS-local.conf
-    mode: "0644"
-    backup: true
-
-- name: Ensure log directory exists
-  ansible.builtin.file:
-    path: "{{ dns_server_unbound_log_dir }}"
-    state: directory
-    mode: '0755'
-
-- name: Make sure Unbound DNS Server is running
-  ansible.builtin.service:
-    name: unbound
-    state: started
-    enabled: true
-
-- name: Restart Unbound DNS Server
-  ansible.builtin.service:
-    name: unbound
-    state: restarted
-    enabled: true
-
-- name: Add firewall rules for DNS Server
-  ansible.posix.firewalld:
-    port: {{ item }}
-    permanent: true
-    state: enabled
-    immediate: true
-  loop:
-    - 53/udp
-    - 53/tcp
+- name: Configure DNS clients to use the DNS Server
+  ansible.builtin.import_tasks: configure_clients_use_local_dns.yml
+  tags:
+    - install
+    - configure_dns_clients
+  when: "'dns_clients' in group_names"
 
 - name: Create mark file to indicate dns_server deploy tasks have been run
   ansible.builtin.file:
     path: "{{ dns_server_success_mark_file_path }}"
     state: touch
     mode: '0644'
+  when: "'dns_server' in group_names"
+  tags:
+    - install
+    - create_mark_file
