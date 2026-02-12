@@ -1,0 +1,14 @@
+---
+# -------------------------
+# Step 5: verify
+# -------------------------
+- name: Check if nova databases and cells are correctly created
+  # ansible.builtin.command: nova-manage cell_v2 list_cells
+  ansible.builtin.command:
+    cmd: su -s /bin/sh -c "nova-manage cell_v2 list_cells" nova
+  register: nova_check_result
+  changed_when: false
+
+- name: Show nova cell check result
+  ansible.builtin.debug:
+    msg: "{{ nova_check_result.stdout_lines }}"

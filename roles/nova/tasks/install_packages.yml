@@ -1,0 +1,16 @@
+---
+- name: Install Nova Packages(controller)
+  ansible.builtin.dnf:
+    name: "{{ nova_packages }}"
+    state: present
+  when:
+    - "'controller' in group_names"
+    - ansible_facts['os_family'] == "RedHat"
+
+- name: Install Nova Compute Packages
+  ansible.builtin.dnf:
+    name: "{{ nova_compute_packages }}"
+    state: present
+  when:
+    - "'compute' in group_names"
+    - ansible_facts['os_family'] == "RedHat"

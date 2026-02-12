@@ -1,0 +1,19 @@
+---
+- name: Enable and start all nova services(controller)
+  ansible.builtin.service:
+    name: "{{ item }}"
+    state: started
+    enabled: true
+  loop:
+    - openstack-nova-api.service
+    - openstack-nova-scheduler.service
+    - openstack-nova-conductor.service
+    - openstack-nova-novncproxy.service
+  when: "'controller' in group_names"
+
+- name: Restart nova-compute service
+  ansible.builtin.service:
+    name: openstack-nova-compute
+    state: restarted
+    enabled: true
+  when: "'compute' in group_names"

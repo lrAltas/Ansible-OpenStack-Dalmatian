@@ -1,0 +1,33 @@
+---
+- name: Create Glance Service User in default domain
+  openstack.cloud.identity_user:
+    name: glance
+    domain: default
+    password: "{{ glance_openstack_service_password }}"
+    state: present
+
+- name: Assign Admin Role to Glance in Service Project
+  openstack.cloud.role_assignment:
+    project: service
+    role: admin
+    user: glance
+    state: present
+
+- name: Create Image Service(Glance)
+  openstack.cloud.catalog_service:
+    name: glance
+    description: OpenStack Image Service
+    service_type: image
+    state: present
+
+- name: Create Image Service(Glance) Endpoints
+  openstack.cloud.endpoint:
+    service: glance
+    endpoint_interface: "{{ item.endpoint_interface }}"
+    url: "{{ item.url }}"
+    region: "{{ glance_region }}"
+    state: present
+  loop:
+    - { endpoint_interface: public, url: "http://{{ hostvars[groups['controller'][0]].inventory_hostname }}:9292"}
+    - { endpoint_interface: internal, url: "http://{{ hostvars[groups['controller'][0]].inventory_hostname }}:9292"}
+    - { endpoint_interface: admin, url: "http://{{ hostvars[groups['controller'][0]].inventory_hostname }}:9292"}

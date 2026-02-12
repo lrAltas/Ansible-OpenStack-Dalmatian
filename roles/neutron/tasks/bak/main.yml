@@ -1,0 +1,13 @@
+# SPDX-License-Identifier: MIT-0
+---
+# tasks file for roles/neutron
+- name: Run controller tasks
+  ansible.builtin.import_tasks: neutron_controller.yml
+  when: "'controller' in group_names"
+
+- name: Run compute tasks
+  ansible.builtin.import_tasks: neutron_compute.yml
+  when: "'compute' in group_names"
+
+- name: Configure nic configuration
+  ansible.builtin.import_tasks: neutron_nic_configuration.yml

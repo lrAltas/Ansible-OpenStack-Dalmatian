@@ -1,0 +1,32 @@
+---
+- name: Sync Neutron Database
+  when: "'controller' in group_names"
+  block:
+    - name: Ensure Neutron database is synced
+      ansible.builtin.command: >
+        neutron-db-manage --config-file /etc/neutron/neutron.conf
+                          --config-file /etc/neutron/plugins/ml2/ml2_conf.ini
+                          upgrade head
+      become: true
+      become_user: neutron
+      args:
+        creates: "{{ neutron_mark_files_path.neutron_db_synced_mark_path }}"
+      register: neutron_db_sync
+      ignore_errors: false
+
+    - name: Mark Neutron database as synced
+      ansible.builtin.file:
+        path: "{{ neutron_mark_files_path.neutron_db_synced_mark_path }}"
+        state: touch
+        mode: '0644'
+      when: neutron_db_sync.rc == 0
+
+    - name: Show db_sync output
+      ansible.builtin.debug:
+        msg: "{{ neutron_db_sync.stdout_lines | default([]) }}"
+
+    - name: Restart nova-api service
+      ansible.builtin.service:
+        name: openstack-nova-api
+        state: restarted
+        enabled: true

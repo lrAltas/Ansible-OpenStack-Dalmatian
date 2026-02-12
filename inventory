@@ -18,6 +18,12 @@ controller.openstack.suying ansible_host=10.1.10.10
 [keystone_servers]
 controller.openstack.suying ansible_host=10.1.10.10
 
+[placement_servers]
+controller.openstack.suying ansible_host=10.1.10.10
+
+[glance_servers]
+controller.openstack.suying ansible_host=10.1.10.10
+
 [dns_server]
 dns.openstack.suying ansible_host=10.1.10.2
 [dns_clients]

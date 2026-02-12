@@ -1,0 +1,27 @@
+---
+- name: Check if Glance database sync mark file exists
+  ansible.builtin.stat:
+    path: "{{ glance_mark_files_path.db_synced_mark_path }}"
+  register: glance_db_mark
+
+- name: Ensure Glance database is synced
+  ansible.builtin.command:
+    cmd: glance-manage db_sync
+  become: true
+  become_user: glance
+  register: glance_db_sync
+  ignore_errors: false
+  changed_when: false
+  when: not glance_db_mark.stat.exists
+
+- name: Mark Glance database as synced
+  ansible.builtin.file:
+    path: "{{ glance_mark_files_path.db_synced_mark_path }}"
+    state: touch
+    mode: '0644'
+  when: not glance_db_mark.stat.exists
+
+- name: Show db_sync output
+  ansible.builtin.debug:
+    msg: "{{ glance_db_sync.stdout_lines | default([]) }}"
+  when: glance_db_sync is defined

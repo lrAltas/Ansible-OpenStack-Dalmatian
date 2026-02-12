@@ -1,0 +1,28 @@
+---
+- name: Restart Neutron Related Services
+  ansible.builtin.service:
+    name: "{{ item }}"
+    state: restarted
+    enabled: true
+  loop:
+    - neutron-server
+    - neutron-openvswitch-agent
+    - neutron-dhcp-agent
+    - neutron-metadata-agent
+    - neutron-l3-agent
+  when: "'controller' in group_names"
+
+- name: Restart Neutron Related Services(compute)
+  when: "'compute' in group_names"
+  block:
+    - name: Restart openstack nova compute
+      ansible.builtin.service:
+        name: openstack-nova-compute
+        state: restarted
+        enabled: true
+
+    - name: Restart neutron openvswitch agent
+      ansible.builtin.service:
+        name: neutron-openvswitch-agent
+        state: restarted
+        enabled: true

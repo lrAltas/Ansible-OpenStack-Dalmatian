@@ -2,6 +2,7 @@
 ---
 # tasks file for roles/placement
 - name: Check if the tasks has been running
+  when: "'placement_servers' in group_names"
   block:
     - name: Ensure Mark Directory Exists
       ansible.builtin.file:
@@ -18,8 +19,71 @@
       ansible.builtin.meta: end_role
       when: placement_success_mark_file.stat.exists
 
+- name: Create Placement database and database user
+  ansible.buitlin.import_tasks: create_placement_db_and_db_user.yml
+  tags:
+    - install
+    - create_placement_db_and_db_user
+  when: "'placement_servers' in group_names"
+
+- name: Create Placement's service user,role,endpoints,and project
+  ansible.builtin.import_tasks: create_placement_service.yml
+  tags:
+    - install
+    - create_placement_service_user_role_endpoints_and_project
+  when: "'placement_servers' in group_names"
+
+- name: Install Placement Packages
+  ansible.builtin.import_tasks: install_packages.yml
+  tags:
+    - install
+  when: "'placement_servers' in group_names"
+
+- name: Deploy Placement Configuration File
+  ansible.builtin.import_tasks: deploy_placement_conf_file.yml
+  tags:
+    - install
+    - configure_placement
+  when: "'placement_servers' in group_names"
+
+- name: Sync Placement Database
+  ansible.builtin.import_tasks: sync_placement_db.yml
+  tags:
+    - install
+    - sync_placement_db
+  when: "'placement_servers' in group_names"
+
+- name: Ensure httpd is restarted to apply Placement changes
+  ansible.builtin.import_tasks: ensure_httpd_apply_changes.yml
+  tags:
+    - install
+    - ensure_httpd_apply_changes
+  when: "'placement_servers' in group_names"
+
+- name: Transform Placement Policy File
+  ansible.builtin.import_tasks: transform_placement_policy_file.yml
+  tags:
+    - install
+    - transform_placement_policy_file
+  when: "'placement_servers' in group_names"
+
+- name: Check Placement Status
+  ansible.builtin.import_tasks: check_placement_status.yml
+  tags:
+    - install
+    - check_placement_status
+  when: "'placement_servers' in group_names"
+
+- name: Solve Placement Policy File Issues
+  ansible.builtin.import_tasks: problem_solve.yml
+  tags:
+    - install
+    - solve_placement_policy_file_issues
+  when: "'placement_servers' in group_names"
+
 - name: Create mark file to indicate placement tasks have been run
   ansible.builtin.file:
     path: "{{ placement_mark_files_path.success }}"
     state: touch
     mode: '0644'
+  when: "'placement_servers' in group_names"

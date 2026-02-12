@@ -1,0 +1,16 @@
+---
+- name: Install Neutron Packages(Controller)
+  ansible.builtin.dnf:
+    name: "{{ neutron_controller_packages }}"
+    state: present
+  when:
+    - "'controller' in group_names"
+    - ansible_facts['os_family'] == "RedHat"
+
+- name: Install Neutron Packages(Compute)
+  ansible.builtin.dnf:
+    name: "{{ neutron_compute_packages }}"
+    state: present
+  when:
+    - "'compute' in group_names"
+    - ansible_facts['os_family'] == "RedHat"

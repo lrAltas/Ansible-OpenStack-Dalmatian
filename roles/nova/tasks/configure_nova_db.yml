@@ -1,0 +1,145 @@
+---
+- name: Configure the nova db
+  block:
+    # -------------------------
+    # Step 1: sync nova_api db
+    # -------------------------
+    - name: Ensure nova_api database is synced
+      # ansible.builtin.command: nova-manage api_db sync
+      ansible.builtin.command:
+        cmd: su -s /bin/sh -c "nova-manage api_db sync" nova
+      args:
+        creates: "{{ nova_mark_files_path.nova_api_db_synced_mark_path }}"
+      register: nova_api_db_sync
+      ignore_errors: false
+
+    - name: Mark nova_api database as synced
+      ansible.builtin.file:
+        path: "{{ nova_mark_files_path.nova_api_db_synced_mark_path }}"
+        state: touch
+        mode: '0644'
+      when: nova_api_db_sync.rc == 0
+
+    - name: Show nova_api db_sync output
+      ansible.builtin.debug:
+        msg: "{{ nova_api_db_sync.stdout_lines }}"
+
+    # -------------------------
+    # Step 2: sync nova_cell0 db
+    # -------------------------
+    - name: Ensure nova_cell0 database is synced
+      # ansible.builtin.command: nova-manage cell_v2 map_cell0
+      ansible.builtin.command:
+        cmd: su -s /bin/sh -c "nova-manage cell_v2 map_cell0" nova
+      args:
+        creates: "{{ nova_mark_files_path.nova_cell0_db_synced_mark_path }}"
+      register: nova_cell0_db_sync
+      ignore_errors: false
+
+    - name: Mark nova_cell0 database as synced
+      ansible.builtin.file:
+        path: "{{ nova_mark_files_path.nova_cell0_db_synced_mark_path }}"
+        state: touch
+        mode: '0644'
+      when: nova_cell0_db_sync.rc == 0
+
+    - name: Show nova_cell0 db_sync output
+      ansible.builtin.debug:
+        msg: "{{ nova_cell0_db_sync.stdout_lines }}"
+
+    # -------------------------
+    # Step 3: create cell1 if not exists
+    # -------------------------
+    - name: List existing cells
+      ansible.builtin.command: nova-manage cell_v2 list_cells
+      register: nova_cell_list
+      changed_when: false
+      become: true
+      become_user: nova
+
+    - name: Check if cell1 mark file exists
+      ansible.builtin.stat:
+        path: "{{ nova_mark_files_path.nova_cell1_created_mark_path }}"
+      register: nova_cell1_mark
+
+    - name: Create nova_cell1 if not exists
+      ansible.builtin.command:
+        cmd: su -s /bin/sh -c "nova-manage cell_v2 create_cell --name=cell1 --verbose" nova
+      when:
+        - "' cell1 ' not in nova_cell_list.stdout"
+        - not nova_cell1_mark.stat.exists
+      register: nova_cell1_created
+      changed_when: nova_cell1_created.rc == 0
+      ignore_errors: false
+
+    - name: Mark nova_cell1 as created
+      ansible.builtin.file:
+        path: "{{ nova_mark_files_path.nova_cell1_created_mark_path }}"
+        state: touch
+        mode: '0644'
+      when:
+        - nova_cell1_created is defined
+        - (nova_cell1_created.rc is defined and nova_cell1_created.rc == 0)
+
+
+    - name: Show nova_cell1 creation result
+      ansible.builtin.debug:
+        msg: "{{ nova_cell1_created.stdout_lines | default([]) }}"
+
+    # # -------------------------
+    # # Step 3: create cell1 if not exists
+    # # -------------------------
+    # - name: List existing cells
+    #   ansible.builtin.command: nova-manage cell_v2 list_cells
+    #   register: nova_cell_list
+    #   changed_when: false
+    #   become: true
+    #   become_user: nova
+
+    # - name: Create nova_cell1 if not exists
+    #   # ansible.builtin.command: nova-manage cell_v2 create_cell --name=cell1 --verbose
+    #   ansible.builtin.command:
+    #     cmd: su -s /bin/sh -c "nova-manage cell_v2 create_cell --name=cell1 --verbose" nova
+    #   args:
+    #     creates: "{{ nova_mark_files_path.nova_cell1_created_mark_path }}"
+    #   when:
+    #     - "' cell1 ' not in nova_cell_list.stdout"
+    #     - not cell1_mark.stat.exists
+    #   register: nova_cell1_created
+    #   ignore_errors: false
+
+    # - name: Mark nova_cell1 as created
+    #   ansible.builtin.file:
+    #     path: "{{ nova_mark_files_path.nova_cell1_created_mark_path }}"
+    #     state: touch
+    #     mode: '0644'
+    #   when:
+    #     - nova_cell1_created is defined
+    #     - (nova_cell1_created.rc is defined and nova_cell1_created.rc == 0)
+
+    # - name: Show nova_cell1 creation result
+    #   ansible.builtin.debug:
+    #     msg: "{{ nova_cell1_created.stdout_lines | default([]) }}"
+
+
+    # -------------------------
+    # Step 4: sync main nova db
+    # -------------------------
+    - name: Ensure nova main database is synced
+      ansible.builtin.command:
+        cmd: su -s /bin/sh -c "nova-manage db sync" nova
+      args:
+        creates: "{{ nova_mark_files_path.nova_db_synced_mark_path }}"
+      register: nova_db_sync
+      ignore_errors: false
+
+    - name: Mark nova main database as synced
+      ansible.builtin.file:
+        path: "{{ nova_mark_files_path.nova_db_synced_mark_path }}"
+        state: touch
+        mode: '0644'
+      when: nova_db_sync.rc == 0
+
+    - name: Show nova main db_sync output
+      ansible.builtin.debug:
+        msg: "{{ nova_db_sync.stdout_lines }}"

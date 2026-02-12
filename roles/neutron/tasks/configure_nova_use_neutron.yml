@@ -1,0 +1,43 @@
+---
+- name: Configure Nova to use Neutron(controller)
+  community.general.ini_file:
+    path: "{{ neutron_controller_conf_path.nova_conf }}"
+    section: "{{ item.section }}"
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+    mode: "0644"
+  loop:
+    - { section: DEFAULT, option: linuxnet_interface_driver, value: nova.network.linux_net.LinuxOVSlnterfaceDriver }
+    - { section: neutron, option: auth_url, value: "http://{{ hostvars[groups['controller'][0]].inventory_hostname }}:5000" }
+    - { section: neutron, option: auth_type, value: password }
+    - { section: neutron, option: project_domain_name, value: default }
+    - { section: neutron, option: user_domain_name, value: default }
+    - { section: neutron, option: region_name, value: RegionOne }
+    - { section: neutron, option: project_name, value: service }
+    - { section: neutron, option: username, value: neutron }
+    - { section: neutron, option: password, value: "{{ neutron_openstack_service_password.neutron }}" }
+    - { section: neutron, option: service_metadata_proxy, value: true }
+    - { section: neutron, option: metadata_proxy_shared_secret, value: ws }
+    - { section: neutron, option: interface, value: public}
+  when: "'controller' in group_names"
+
+- name: Configure Nova to use Neutron(compute)
+  community.general.ini_file:
+    path: "{{ neutron_compute_conf_path.nova_conf }}"
+    section: "{{ item.section }}"
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+    mode: "0644"
+  loop:
+    - { section: DEFAULT, option: linuxnet_interface_driver, value: nova.network.linux_net.LinuxOVSlnterfaceDriver }
+    - { section: DEFAULT, option: vif_plugging_is_fatal, value: true }
+    - { section: DEFAULT, option: vif_plugging_timeout, value: 300 }
+    - { section: neutron, option: auth_url, value: "http://{{ hostvars[groups['controller'][0]].inventory_hostname }}:5000" }
+    - { section: neutron, option: auth_type, value: password }
+    - { section: neutron, option: project_domain_name, value: default }
+    - { section: neutron, option: user_domain_name, value: default }
+    - { section: neutron, option: region_name, value: RegionOne }
+    - { section: neutron, option: project_name, value: service }
+    - { section: neutron, option: username, value: neutron }
+    - { section: neutron, option: password, value: "{{ neutron_openstack_service_password.neutron }}" }
+  when: "'compute' in group_names"

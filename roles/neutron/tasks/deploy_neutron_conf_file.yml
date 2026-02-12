@@ -1,0 +1,41 @@
+---
+# 没有特殊情况不要东配置文件的路径，个个嘎嘎改来改去，很折磨人的
+# Unless there are special requirements, these configuration file locations should not be changed
+- name: Deploy Neutron Configuration Template(Controller)
+  when: "'controller' in group_names"
+  block:
+    - name: Deploy Neutron Configuration Template
+      ansible.builtin.template:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        mode: '0644'
+      loop:
+        - { src: "{{ neutron_controller_conf_template_src.neutron_conf }}", dest: "{{ neutron_controller_conf_path.neutron_conf }}" }
+        - { src: "{{ neutron_controller_conf_template_src.ml2_conf }}", dest: "{{ neutron_controller_conf_path.ml2_conf }}" }
+        - { src: "{{ neutron_controller_conf_template_src.openvswitch_conf }}", dest: "{{ neutron_controller_conf_path.openvswitch_conf }}" }
+        - { src: "{{ neutron_controller_conf_template_src.dhcp_conf }}", dest: "{{ neutron_controller_conf_path.dhcp_conf }}" }
+        - { src: "{{ neutron_controller_conf_template_src.metadata_conf }}", dest: "{{ neutron_controller_conf_path.metadata_conf }}" }
+        - { src: "{{ neutron_controller_conf_template_src.l3_conf }}", dest: "{{ neutron_controller_conf_path.l3_conf }}" }
+
+# 实际手动部署的时候发现这个文件，也就是plugin.ini文件，其实在Yoga版本上没有
+# 但是实际内容其实和ml2_conf.ini文件一样
+# 所以这里直接用ml2_conf.ini文件来代替，用链接代替
+# The file plugin.ini is actually not in the Yoga version, but the actual content is actually the same as ml2_conf.ini
+# So here ml2_conf.ini is used to replace plugin.ini
+    - name: Ensure Neutron Plugin.ini Symlink Exists(ml2_conf.ini)
+      ansible.builtin.file:
+        src: "{{ neutron_controller_conf_path.ml2_conf }}"
+        dest: "{{ neutron_controller_conf_path.plugin_ini }}"
+        state: link
+        mode: '0644'
+        force: true
+
+- name: Deploy Neutron Configuration Template(Compute)
+  ansible.builtin.template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: "0644"
+  loop:
+    - { src: "{{ neutron_compute_conf_template_src.neutron_conf }}", dest: "{{ neutron_compute_conf_path.neutron_conf }}" }
+    - { src: "{{ neutron_compute_conf_template_src.openvswitch_conf }}", dest: "{{ neutron_compute_conf_path.openvswitch_conf }}" }
+  when: "'compute' in group_names"

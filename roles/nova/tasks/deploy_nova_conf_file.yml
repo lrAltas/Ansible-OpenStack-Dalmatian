@@ -1,0 +1,14 @@
+---
+- name: Deploy Nova Configuration Templates
+  ansible.builtin.template:
+    src: "{{ nova_conf_template_src }}"
+    dest: "{{ nova_conf_path }}"
+    mode: '0644'
+  when: "'controller' in group_names"
+
+- name: Use Templates to deploy nova compute configuration
+  ansible.builtin.template:
+    src: "{{ nova_compute_conf_template_src }}"
+    dest: "{{ nova_compute_conf_path }}"
+    mode: '0644'
+  when: "'compute' in group_names"

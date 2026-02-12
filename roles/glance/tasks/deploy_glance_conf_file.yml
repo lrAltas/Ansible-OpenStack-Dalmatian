@@ -1,0 +1,6 @@
+---
+- name: Deploy glance-api.conf from template
+  ansible.builtin.template:
+    src: "{{ glance_api_conf_template_src }}"
+    dest: "{{ glance_api_conf_path }}"
+    mode: '0644'

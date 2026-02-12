@@ -1,0 +1,5 @@
+---
+- name: Install Glance Packages
+  ansible.builtin.dnf:
+    name: "{{ glance_packages }}"
+    state: present

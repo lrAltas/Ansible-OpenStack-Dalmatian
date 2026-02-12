@@ -1,13 +1,108 @@
 # SPDX-License-Identifier: MIT-0
 ---
 # tasks file for roles/neutron
-- name: Run controller tasks
-  ansible.builtin.import_tasks: neutron_controller.yml
+- name: Check if the tasks has been running(controller)
   when: "'controller' in group_names"
+  block:
+    - name: Ensure Mark Directory Exists
+      ansible.builtin.file:
+        path: "{{ neutron_mark_dir_path }}"
+        state: directory
+        mode: '0755'
 
-- name: Run compute tasks
-  ansible.builtin.import_tasks: neutron_compute.yml
+    - name: Check if neutron tasks have been run
+      ansible.builtin.stat:
+        name: "{{ neutron_mark_files_path.controller_conf_success }}"
+      register: neutron_mark_file
+
+    - name: Skip if neutron tasks have been run
+      ansible.builtin.meta: end_role
+      when: neutron_mark_file.stat.exists
+
+- name: Check if the tasks has been running(compute)
   when: "'compute' in group_names"
+  block:
+    - name: Ensure Mark Directory Exists
+      ansible.builtin.file:
+        path: "{{ neutron_mark_dir_path }}"
+        state: directory
+        mode: '0755'
 
-- name: Configure nic configuration
+    - name: Check if neutron tasks have been run
+      ansible.builtin.stat:
+        name: "{{ neutron_mark_files_path.compute_conf_success }}"
+      register: neutron_mark_file
+
+    - name: Skip if neutron tasks have been run
+      ansible.builtin.meta: end_role
+      when: neutron_mark_file.stat.exists
+
+- name: Configure sysctl for Neutron
+  ansible.builtin.import_tasks: add_sysctl_parameters.yml
+  tags: add_sysctl_parameters
+
+- name: Configure Open vSwitch for Neutron
   ansible.builtin.import_tasks: neutron_nic_configuration.yml
+  tags: configure_nic
+
+- name: Controller Node Tasks
+  when: "'controller' in group_names"
+  block:
+    - name: Create Neutron database and database user
+      ansible.builtin.import_tasks: create_neutron_db.yml
+      tags: create_neutron_db
+
+    - name: Create Neutron Service User and Endpoints
+      ansible.builtin.import_tasks: create_neutron_service.yml
+      tags: create_neutron_service
+
+    - name: Install Neutron packages
+      ansible.builtin.import_tasks: install_packages.yml
+      tags: install_neutron_packages_controller
+
+    - name: Deploy neutron configuration files
+      ansible.builtin.import_tasks: deploy_neutron_conf_file.yml
+      tags: deploy_neutron_conf
+
+    - name: Configrue Nova to use Neutron
+      ansible.builtin.import_tasks: configure_nova_use_neutron.yml
+      tags: configure_nova_for_neutron
+
+    - name: Sync neutron database
+      ansible.builtin.import_tasks: sync_neutron_db.yml
+      tags: sync_neutron_db
+
+    - name: Restart Neutron Services
+      ansible.builtin.import_tasks: restart_necessary_services.yml
+      tags: restart_neutron_services
+
+    - name: Create Mark file to indicate that the tasks have been run
+      ansible.builtin.file:
+        path: "{{ neutron_mark_files_path.controller_conf_success }}"
+        state: touch
+        mode: '0644'
+
+- name: Compute Node Tasks
+  when: "'compute' in group_names"
+  block:
+    - name: Install Neutron packages
+      ansible.builtin.import_tasks: install_packages.yml
+      tags: install_neutron_packages_compute
+
+    - name: Deploy neutron configuration files
+      ansible.builtin.import_tasks: deploy_neutron_conf_file.yml
+      tags: deploy_neutron_conf
+
+    - name: Configure Nova to use Neutron
+      ansible.builtin.import_tasks: configure_nova_use_neutron.yml
+      tags: configure_nova_for_neutron
+
+    - name: Restart related services
+      ansible.builtin.import_tasks: restart_necessary_services.yml
+      tags: restart_neutron_services
+
+    - name: Create Mark file to indicate that the tasks have been run
+      ansible.builtin.file:
+        path: "{{ neutron_mark_files_path.compute_conf_success }}"
+        state: touch
+        mode: '0644'

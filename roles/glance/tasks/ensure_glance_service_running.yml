@@ -1,0 +1,12 @@
+---
+- name: Ensure glance-api service started
+  ansible.builtin.service:
+    name: openstack-glance-api
+    state: started
+    enabled: true
+
+- name: Restart glance-api service
+  ansible.builtin.service:
+    name: openstack-glance-api
+    state: restarted
+    enabled: true

@@ -1,0 +1,36 @@
+---
+- name: Create Neutron Service User and Endpoints
+  when: "'controller' in group_names"
+  block:
+    - name: Create Neutron Service User in default domain
+      openstack.cloud.identity_user:
+        name: neutron
+        domain: default
+        password: "{{ neutron_openstack_service_password.neutron }}"
+        state: present
+
+    - name: Assign Admin Role to Neutron in Service Project
+      openstack.cloud.role_assignment:
+        project: service
+        role: admin
+        user: neutron
+        state: present
+
+    - name: Create Network Service(Neutron)
+      openstack.cloud.catalog_service:
+        name: neutron
+        description: OpenStack Network Service
+        service_type: network
+        state: present
+
+    - name: Create Neutron Endpoints
+      openstack.cloud.endpoint:
+        service: neutron
+        endpoint_interface: "{{ item.endpoint_interface }}"
+        url: "{{ item.url }}"
+        region: "{{ neutron_region }}"
+        state: present
+      loop:
+        - { endpoint_interface: public, url: "http://{{ hostvars[groups['controller'][0]].inventory_hostname }}:9696"}
+        - { endpoint_interface: internal, url: "http://{{ hostvars[groups['controller'][0]].inventory_hostname }}:9696"}
+        - { endpoint_interface: admin, url: "http://{{ hostvars[groups['controller'][0]].inventory_hostname }}:9696"}
