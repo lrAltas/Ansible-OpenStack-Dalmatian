@@ -1,0 +1,24 @@
+- name: Keystone bootstrap initialization
+  block:
+    - name: Check if Keystone bootstrap mark file exists
+      ansible.builtin.stat:
+        path: "{{ keystone_mark_files_path.keystone_bootstrap_mark_path }}"
+      register: keystone_bootstrap_mark
+
+    - name: Bootstrap Keystone
+      ansible.builtin.shell: |
+        keystone-manage bootstrap \
+          --bootstrap-password {{ keystone_admin_password | default('000000') }} \
+          --bootstrap-admin-url http://{{ hostvars[groups['controller'][0]].inventory_hostname }}:5000/v3/ \
+          --bootstrap-internal-url http://{{ hostvars[groups['controller'][0]].inventory_hostname }}:5000/v3/ \
+          --bootstrap-public-url http://{{ hostvars[groups['controller'][0]].inventory_hostname }}:5000/v3/ \
+          --bootstrap-region-id RegionOne
+      changed_when: false
+      when: not keystone_bootstrap_mark.stat.exists
+
+    - name: Mark Keystone bootstrap done
+      ansible.builtin.file:
+        path: "{{ keystone_mark_files_path.keystone_bootstrap_mark_path }}"
+        state: touch
+        mode: '0755'
+      when: not keystone_bootstrap_mark.stat.exists

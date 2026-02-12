@@ -1,0 +1,12 @@
+---
+- name: Ensure httpd is running
+  ansible.builtin.systemd:
+    name: httpd
+    state: started
+    enabled: true
+
+- name: Restart httpd to apply the configure file
+  ansible.builtin.systemd:
+    name: httpd
+    state: restarted
+    enabled: true

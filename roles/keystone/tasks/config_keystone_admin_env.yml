@@ -1,0 +1,12 @@
+- name: Configure KeyStone Admin Env
+  block:
+    - name: Deploy Keystone Admin sh from templates
+      ansible.builtin.template:
+        src: "{{ keystone_admin_sh_template_src }}"
+        dest: "{{ keystone_admin_sh_path }}"
+        mode: '0755'
+
+    - name: Enable Keystone Admin Env
+      ansible.builtin.shell: |
+        source {{ keystone_admin_sh_path }}
+      changed_when: false

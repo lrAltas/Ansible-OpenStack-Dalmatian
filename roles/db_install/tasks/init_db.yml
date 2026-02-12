@@ -1,0 +1,42 @@
+---
+- name: Init mariadb-server
+  block:
+# 所有的任务都使用unix socket来连接mariadb
+# All the tasks use unix sockets to connect to mariadb
+    - name: Delete test-user
+      community.mysql.mysql_user:
+        login_user: root
+        login_unix_socket: "{{ db_install_mariadb_socket_path }}"
+        name: ''
+        state: absent
+        host_all: true
+
+    - name: Check if root'%' user exists
+      community.mysql.mysql_query:
+        login_user: root
+        login_unix_socket: "{{ db_install_mariadb_socket_path }}"
+        query: "SELECT COUNT(*) AS count FROM mysql.user WHERE user='root' AND host='%'"
+      register: db_install_root_user_exists
+
+    - name: Permit root access from anywhere
+      community.mysql.mysql_user:
+        login_user: root
+        login_unix_socket: "{{ db_install_mariadb_socket_path }}"
+        name: root
+        host: '%'
+        password: ''
+        priv: '*.*:ALL,GRANT'
+        state: present
+
+    - name: Delete test databases
+      community.mysql.mysql_db:
+        login_user: root
+        login_unix_socket: "{{ db_install_mariadb_socket_path }}"
+        name: test
+        state: absent
+
+    - name: Flush privileges
+      community.mysql.mysql_query:
+        login_user: root
+        login_unix_socket: "{{ db_install_mariadb_socket_path }}"
+        query: FLUSH PRIVILEGES;

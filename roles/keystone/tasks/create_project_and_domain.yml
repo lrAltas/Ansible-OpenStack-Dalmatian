@@ -1,0 +1,14 @@
+- name: Create Default ,example project and domain
+  block:
+    - name: Create Service project in default domain
+      openstack.cloud.project:
+        name: "service"
+        description: "Service Project"
+        domain: "default"
+        state: present
+        enabled: true
+      register: keystone_service_project_output
+
+    - name: Show Service project output
+      ansible.builtin.debug:
+        var: keystone_service_project_output

@@ -1,0 +1,31 @@
+---
+- name: Install and Upgrade Basic Packages
+  block:
+    - name: Install some basic software packages(include openstack-release package)
+      ansible.builtin.dnf:
+        name: "{{ env_init_packages }}"
+        state: present
+      when: ansible_facts['os_family'] == "RedHat"
+
+    - name: Upgrade python-openstacksdk package
+      ansible.builtin.pip:
+        name: openstacksdk==4.5.0
+      when: ansible_facts['os_family'] == "RedHat"
+
+    - name: Upgrade some pip packages
+      ansible.builtin.command:
+        cmd: pip3 install --upgrade cryptography pyopenssl
+      changed_when: false
+      when: ansible_facts['os_family'] == "RedHat"
+
+    - name: Enable CRB repository
+      ansible.builtin.command:
+        cmd: dnf config-manager --set-enabled crb
+      changed_when: false
+      when: ansible_facts['os_family'] == "RedHat"
+
+    - name: Install OpenStack-Client package
+      ansible.builtin.dnf:
+        name: "{{ env_init_openstack_client_package }}"
+        state: present
+      when: ansible_facts['os_family'] == "RedHat"

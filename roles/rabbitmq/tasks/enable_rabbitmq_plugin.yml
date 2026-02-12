@@ -1,0 +1,7 @@
+---
+- name: Enable RabbitMQ Managenment Plugin
+  community.rabbitmq.rabbitmq_plugin:
+    name: rabbitmq_management
+    state: enabled
+  tags:
+    - enable_rabbitmq_management_plugin

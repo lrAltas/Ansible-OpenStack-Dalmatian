@@ -1,0 +1,5 @@
+---
+# Set the hostname of the machine to match the inventory hostname
+- name: Set hostnames
+  ansible.builtin.hostname:
+    name: "{{ inventory_hostname }}"

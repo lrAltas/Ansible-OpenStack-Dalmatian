@@ -1,0 +1,27 @@
+---
+- name: Check if Keystone DB sync mark file exists
+  ansible.builtin.stat:
+    path: "{{ keystone_mark_files_path.db_synced_mark_path }}"
+  register: keystone_db_sync_mark
+
+- name: Ensure Keystone database is synced
+  ansible.builtin.command:
+    cmd: keystone-manage db_sync
+  become: true
+  become_user: keystone
+  register: keystone_db_sync
+  changed_when: false
+  ignore_errors: false
+  when: not keystone_db_sync_mark.stat.exists
+
+- name: Show db_sync output
+  ansible.builtin.debug:
+    msg: "{{ keystone_db_sync.stdout_lines | default([]) }}"
+  when: not keystone_db_sync_mark.stat.exists
+
+- name: Mark Keystone database as synced
+  ansible.builtin.file:
+    path: "{{ keystone_mark_files_path.db_synced_mark_path }}"
+    state: touch
+    mode: '0755'
+  when: not keystone_db_sync_mark.stat.exists

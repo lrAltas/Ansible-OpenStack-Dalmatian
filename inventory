@@ -6,7 +6,17 @@ compute02.openstack.suying ansible_host=10.1.10.12
 
 #[skyline]
 #skyline.openstack.suying ansible_host=10.1.10.203
+[db_servers]
+controller.openstack.suying ansible_host=10.1.10.10
 
+[rabbitmq_servers]
+controller.openstack.suying ansible_host=10.1.10.10
+
+[memcache_servers]
+controller.openstack.suying ansible_host=10.1.10.10
+
+[keystone_servers]
+controller.openstack.suying ansible_host=10.1.10.10
 
 [dns_server]
 dns.openstack.suying ansible_host=10.1.10.2

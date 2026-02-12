@@ -1,0 +1,10 @@
+---
+- name: Create OpenStack User and set necessary permissions
+  community.rabbitmq.rabbitmq_user:
+    name: openstack
+    password: "{{ rabbitmq_openstack_rabbitmq_user_password }}"
+    configure_priv: ".*"
+    read_priv: ".*"
+    write_priv: ".*"
+    tags: none
+    state: present

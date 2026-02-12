@@ -1,0 +1,10 @@
+# SPDX-License-Identifier: MIT-0
+---
+# roles/你的角色/tasks/main.yml
+- name: Import Ubuntu tasks
+  ansible.builtin.import_tasks: Ubuntu_Env_Init.yml
+  when: ansible_facts['distribution'] == 'Ubuntu'
+
+- name: Import CentOS tasks
+  ansible.builtin.import_tasks: CentOS_Env_Init.yml
+  when: ansible_facts['distribution'] == 'CentOS'

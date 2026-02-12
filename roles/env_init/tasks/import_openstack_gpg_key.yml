@@ -1,0 +1,5 @@
+---
+- name: Import OpenStack GPG key First
+  ansible.builtin.rpm_key:
+    state: present
+    key: https://www.centos.org/keys/RPM-GPG-KEY-CentOS-SIG-Cloud

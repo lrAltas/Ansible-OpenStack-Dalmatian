@@ -1,0 +1,6 @@
+---
+- name: Configure Keystone from templates
+  ansible.builtin.template:
+    src: "{{ keystone_conf_template_src }}"
+    dest: "{{ keystone_conf_path }}"
+    mode: '0644'

@@ -1,0 +1,9 @@
+---
+# 在示例环境中，我们需要需要关闭防火墙以避免影响服务间的通信
+# In the example environment, we need to disable the firewall to avoid affecting communication between services
+# This task stops and disables the firewall service on target hosts
+- name: Stop firewall in target hosts(ubuntu's firewall is ufw)
+  ansible.builtin.service:
+    name: firewalld
+    state: stopped
+    enabled: false

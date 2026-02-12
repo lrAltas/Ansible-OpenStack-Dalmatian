@@ -29,7 +29,7 @@
   when: "'ntp_servers' in group_names"
 
 - name: Deploy NTP server configuration files
-  ansible.builtin.import_tasks: deploy_config.yml
+  ansible.builtin.import_tasks: deploy_conf_file.yml
   tags:
     - install
     - config

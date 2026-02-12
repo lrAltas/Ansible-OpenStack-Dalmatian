@@ -1,0 +1,39 @@
+---
+- name: Deploy dns server
+  hosts: dns_server,dns_clients
+  serial: 1
+  roles:
+    - dns_server
+
+- name: Deploy ntp server
+  hosts: ntp_servers,ntp_clients
+  serial: 2
+  roles:
+    - ntp_server
+
+- name: Init env
+  hosts: controller,compute
+  serial: 3
+  roles:
+    - env_init
+
+- name: Configure controller
+  hosts: controller
+  serial: 4
+  roles:
+    - db_install
+    - rabbitmq
+    - memcache
+    - keystone
+    - glance
+    - placement
+    - nova
+    - neutron
+    - dashboard
+
+- name: Configrue Compute node
+  hosts: compute
+  serial: 5
+  roles:
+    - nova
+    - neutron

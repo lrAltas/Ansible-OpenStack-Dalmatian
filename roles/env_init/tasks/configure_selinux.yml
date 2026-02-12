@@ -1,0 +1,15 @@
+---
+# before running,we need to disable SElinux
+- name: Disable SELinux permenatly
+  ansible.posix.selinux:
+    state: disabled
+    policy: targeted
+
+- name: Reboot to apply all changes
+  ansible.builtin.reboot:
+    msg: "Reboot to fully disable SELinux"
+    connect_timeout: 5
+    reboot_timeout: 600
+    pre_reboot_delay: 0
+    post_reboot_delay: 30
+  when: selinux_reboot_required | default(true)

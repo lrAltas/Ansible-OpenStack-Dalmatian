@@ -1,0 +1,6 @@
+---
+- name: Configure Apache from templates
+  ansible.builtin.template:
+    src: "{{ keystone_httpd_conf_template_src }}"
+    dest: "{{ keystone_httpd_conf_path }}"
+    mode: '0644'

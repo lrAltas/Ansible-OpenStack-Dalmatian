@@ -1,0 +1,6 @@
+---
+- name: Install Keystone Packages
+  ansible.builtin.dnf:
+    name: "{{ keystone_packages }}"
+    state: present
+  when: ansible_facts['os_family'] == "RedHat"

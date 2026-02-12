@@ -1,10 +1,53 @@
 # SPDX-License-Identifier: MIT-0
 ---
-# roles/你的角色/tasks/main.yml
-- name: Import Ubuntu tasks
-  ansible.builtin.import_tasks: Ubuntu_Env_Init.yml
-  when: ansible_facts['distribution'] == 'Ubuntu'
+# tasks file for roles/env_init
+# This role is to initialize the environment for OpenStack Yoga rebuild
+# It checks if the initialization tasks have been run before by looking for a mark file
+# If the mark file exists, it skips the tasks to avoid re-initialization
+# 通过设置标记文件来检查初始化任务是否已经运行过
+# 如果标记文件存在，则跳过任务以避免重新初始化
+- name: Check if the tasks has been running
+  block:
+    - name: Ensure Mark Directory Exists
+      ansible.builtin.file:
+        path: "{{ env_init_mark_dir_path }}"
+        state: directory
+        mode: '0755'
 
-- name: Import CentOS tasks
-  ansible.builtin.import_tasks: CentOS_Env_Init.yml
-  when: ansible_facts['distribution'] == 'CentOS'
+    - name: Check if env_init tasks have been run
+      ansible.builtin.stat:
+        name: "{{ env_init_mark_file_path }}"
+      register: env_init_mark_file
+
+    - name: Skip if init_env tasks have been run
+      ansible.builtin.meta: end_role
+      when: env_init_mark_file.stat.exists
+
+- name: Set hostname
+  ansible.builtin.import_tasks: set_hostname.yml
+  tags:
+    - set_hostname
+
+- name: Disable firewalld Service
+  ansible.builtin.import_tasks: configure_firewalld.yml
+  tags:
+    - configure_firewalld
+  when: ansible_facts['os_family'] == "RedHat"
+
+- name: Install and upgrade some basic packages
+  ansible.builtin.import_tasks: install_and_upgrade_basic_packages.yml
+  tags:
+    - install_and_upgrade_basic_packages
+  when: ansible_facts['os_family'] == "RedHat"
+
+- name: Disable SELinux
+  ansible.builtin.import_tasks: configure_selinux.yml
+  tags:
+    - configure_selinux
+  when: ansible_facts['os_family'] == "RedHat"
+
+- name: Create mark file to indicate init_env tasks have been run
+  ansible.builtin.file:
+    path: "{{ env_init_mark_file_path }}"
+    state: touch
+    mode: '0644'

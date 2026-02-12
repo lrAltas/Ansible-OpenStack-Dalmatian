@@ -1,0 +1,43 @@
+- name: Keystone key initialization
+  block:
+    # --- Fernet Key Initialization ---
+    - name: Check if Fernet key initialization mark exists
+      ansible.builtin.stat:
+        path: "{{ keystone_mark_files_path.fernet_initialized_mark_path }}"
+      register: keystone_fernet_mark
+
+    - name: Initialize Keystone fernet keys
+      ansible.builtin.command:
+        cmd: keystone-manage fernet_setup --keystone-user keystone --keystone-group keystone
+        # cmd: keystone-manage fernet_setup --keystone-user keystone --keystone-group keystone
+      failed_when: false
+      changed_when: false
+      when: not keystone_fernet_mark.stat.exists
+
+    - name: Mark Fernet initialization done
+      ansible.builtin.file:
+        path: "{{ keystone_mark_files_path.fernet_initialized_mark_path }}"
+        state: touch
+        mode: '0755'
+      when: not keystone_fernet_mark.stat.exists
+
+    # --- Credential Key Initialization ---
+    - name: Check if Credential key initialization mark exists
+      ansible.builtin.stat:
+        path: "{{ keystone_mark_files_path.credential_initialized_mark_path }}"
+      register: keystone_credential_mark
+
+    - name: Initialize Keystone credential keys
+      ansible.builtin.command:
+        cmd: keystone-manage credential_setup --keystone-user keystone --keystone-group keystone
+        # cmd: keystone-manage credential_setup --keystone-user keystone --keystone-group keystone
+      failed_when: false
+      changed_when: false
+      when: not keystone_credential_mark.stat.exists
+
+    - name: Mark Credential initialization done
+      ansible.builtin.file:
+        path: "{{ keystone_mark_files_path.credential_initialized_mark_path }}"
+        state: touch
+        mode: '0755'
+      when: not keystone_credential_mark.stat.exists

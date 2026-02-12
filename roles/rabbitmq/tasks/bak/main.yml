@@ -2,7 +2,6 @@
 ---
 # tasks file for roles/rabbitmq
 - name: Check if the tasks has been running
-  when: "'rabbitmq_servers' in group_names"
   block:
     - name: Ensure Mark Directory Exists
       ansible.builtin.file:
@@ -18,6 +17,7 @@
     - name: Skip if rabbitmq tasks have been run
       ansible.builtin.meta: end_role
       when: rabbitmq_mark_file.stat.exists
+
 
 # 必须要提前说明的是，官方仓库里面的RabbitMQ很抽象，是RabbitMQ-3.8的版本与配套的erlang，实际下载的是RabbitMQ-3.9
 # 很有意思的是，3.9在CentOS-9-stream上不行，Controller与Compute节点上会出Nova各个组件无法与RabbitMQ连接的问题，Compute上面也是的
@@ -45,45 +45,78 @@
 # 2025-10-22 01:29:50.061 4991 ERROR nova
 # 解决方法也很简单（？）从RabbitMQ官方下载最新版的RabbitMQ即可，应该是4.x版本的样子
 
-- name: Configure RabbitMQ Repository and GPG Keys
-  ansible.builtin.import_tasks: configure_repository.yml
-  tags:
-    - install
-    - configure_rabbitmq_repository
-  when: "'rabbitmq_servers' in group_names"
+- name: Disable CentOS 9 Stream‘s RabbitMQ Repository
+  block:
+    - name: Disable CentOS 9 Stream‘s RabbitMQ Repository
+      ansible.builtin.command:
+        cmd: dnf config-manager --set-disabled centos-rabbitmq-38
+      changed_when: false
 
-- name: Install RabbitMQ Packages
-  ansible.builtin.import_tasks: install_packages.yml
-  tags:
-    - install
-  when:
-    - "'rabbitmq_servers' in group_names"
-    - ansible_facts['os_family'] == "RedHat"
+    - name: Create GPG keys directory
+      ansible.builtin.file:
+        path: "{{ rabbitmq_gpgkeys_files_path }}"
+        state: directory
+        mode: '0755'
 
-- name: Ensure RabbitMQ Service is started and enabled
-  ansible.builtin.import_tasks: ensure_service_running.yml
-  tags:
-    - install
-    - ensure_rabbitmq_service_running
-  when: "'rabbitmq_servers' in group_names"
+    - name: Deploy Official RabbitMQ Repository from Templates
+      # 官方并没有提供具体的repo文件用于下载，他是让我们直接复制粘贴的，所以我们这里直接用模板来直接部署
+      # 此时的模板文件使用的2025年10月26日的repo文件
+      ansible.builtin.template:
+        src: "{{ rabbitmq_repo_template_path }}"
+        dest: "{{ rabbitmq_repo_path }}"
+        mode: '0644'
 
-- name: Enable RabbitMQ Management Plugin
-  ansible.builtin.import_tasks: enable_rabbitmq_plugin.yml
-  tags:
-    - install
-    - enable_rabbitmq_management_plugin
-  when: "'rabbitmq_servers' in group_names"
+    - name: Copy RabbitMQ GPG keys from control node to managed node
+      ansible.builtin.copy:
+        src: "{{ item }}"
+        dest: "{{ rabbitmq_gpgkeys_files_path }}/{{ item }}"
+        mode: '0644'
+      loop:
+        - cloudsmith.rabbitmq-erlang.E495BB49CC4BBE5B.key
+        - cloudsmith.rabbitmq-server.9F4587F226208342.key
+        - rabbitmq-launchpad-ppa-signing-key.asc
+        - rabbitmq-release-signing-key.asc
 
-- name: Configure RabbitMQ Users and Permissions
-  ansible.builtin.import_tasks: configure_rabbitmq_openstack_users.yml
-  tags:
-    - install
-    - configure_rabbitmq_users
-  when: "'rabbitmq_servers' in group_names"
+    - name: Import RabbitMQ GPG keys into system keyring
+      ansible.builtin.rpm_key:
+        state: present
+        key: "{{ rabbitmq_gpgkeys_files_path }}/{{ item }}"
+      loop:
+        - cloudsmith.rabbitmq-erlang.E495BB49CC4BBE5B.key
+        - cloudsmith.rabbitmq-server.9F4587F226208342.key
+        - rabbitmq-launchpad-ppa-signing-key.asc
+        - rabbitmq-release-signing-key.asc
+
+- name: Install RabbitMQ Packages and Add OpenStack User
+  block:
+    - name: Install RabbitMQ Packages
+      ansible.builtin.dnf:
+        name: "{{ rabbitmq_packages }}"
+        state: present
+
+    - name: Start and enable RabbitMQ
+      ansible.builtin.service:
+        name: rabbitmq-server
+        state: started
+        enabled: true
+
+    - name: Enable RabbitMQ Managenment Plugin
+      community.rabbitmq.rabbitmq_plugin:
+        name: rabbitmq_management
+        state: enabled
+
+    - name: Create OpenStack User and set necessary permissions
+      community.rabbitmq.rabbitmq_user:
+        name: openstack
+        password: "{{ rabbitmq_openstack_rabbitmq_user_password }}"
+        configure_priv: ".*"
+        read_priv: ".*"
+        write_priv: ".*"
+        tags: none
+        state: present
 
 - name: Create mark file to indicate rabbitmq tasks have been run
   ansible.builtin.file:
     path: "{{ rabbitmq_mark_file_path }}"
     state: touch
     mode: '0644'
-  when: "'rabbitmq_servers' in group_names"

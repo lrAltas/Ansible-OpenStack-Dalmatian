@@ -1,0 +1,8 @@
+---
+- name: Configure OpenStack DB configure file
+  ansible.builtin.template:
+    src: "{{ db_install_db_conf_template_src }}"
+    dest: "{{ db_install_db_conf_path }}"
+    mode: '0644'
+    owner: root
+    group: root

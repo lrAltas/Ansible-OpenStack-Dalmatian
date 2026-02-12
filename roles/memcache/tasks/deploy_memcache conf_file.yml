@@ -1,0 +1,8 @@
+---
+- name: Deploy memcache configuration template
+  ansible.builtin.template:
+    src: "{{ memcache_conf_template_src }}"
+    dest: "{{ memcache_conf_path }}"
+    mode: '0644'
+    owner: root
+    group: root

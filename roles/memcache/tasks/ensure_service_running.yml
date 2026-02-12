@@ -1,0 +1,6 @@
+---
+- name: Start memcache and enable memcache
+  ansible.builtin.service:
+    name: memcached
+    state: started
+    enabled: true

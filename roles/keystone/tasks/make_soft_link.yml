@@ -1,0 +1,5 @@
+- name: Make Softlink
+  ansible.builtin.file:
+    src: "{{ keystone_httpd_conf_path_softlink_src }}"
+    dest: "{{ keystone_httpd_conf_path_softlink_dest }}"
+    state: link

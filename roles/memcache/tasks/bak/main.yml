@@ -2,7 +2,6 @@
 ---
 # tasks file for roles/memcache
 - name: Check if the tasks has been running
-  when: "'memcache_servers' in group_names"
   block:
     - name: Ensure Mark Directory Exists
       ansible.builtin.file:
@@ -19,29 +18,29 @@
       ansible.builtin.meta: end_role
       when: memcache_mark_file.stat.exists
 
-- name: Install memcache packages
-  ansible.builtin.import_tasks: install_packages.yml
-  tags:
-    - install
-  when: "'memcache_servers' in group_names"
+- name: Install memcache and deploy memcache configuration
+  block:
+    - name: Install Memcache Packages
+      ansible.builtin.dnf:
+        name: "{{ memcache_packages }}"
+        state: present
 
-- name: Deploy memcache configuration files
-  ansible.builtin.import_tasks: deploy_memcache conf_file.yml
-  tags:
-    - install
-    - config
-  when: "'memcache_servers' in group_names"
+    - name: Deploy memcache configuration template
+      ansible.builtin.template:
+        src: "{{ memcache_conf_template_src }}"
+        dest: "{{ memcache_conf_path }}"
+        mode: '0644'
+        owner: root
+        group: root
 
-- name: Ensure memcache service is started and enabled
-  ansible.builtin.import_tasks: ensure_service_running.yml
-  tags:
-    - install
-    - ensure_running
-  when: "'memcache_servers' in group_names"
+    - name: Start memcache and enable memcache
+      ansible.builtin.service:
+        name: memcached
+        state: started
+        enabled: true
 
 - name: Create mark file to indicate memcache tasks have been run
   ansible.builtin.file:
     path: "{{ memcache_mark_file_path }}"
     state: touch
     mode: '0644'
-  when: "'memcache_servers' in group_names"
