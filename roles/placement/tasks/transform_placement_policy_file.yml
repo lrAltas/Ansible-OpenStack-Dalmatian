@@ -1,0 +1,22 @@
+---
+- name: Check if Placement policy.json exists
+  ansible.builtin.stat:
+    path: "{{ placement_policy_json_path }}"
+  register: placement_policy_json_exists
+
+- name: Convert Placement policy.json to YAML if exists
+  ansible.builtin.command:
+    cmd: >
+      oslopolicy-convert-json-to-yaml
+      --namespace placement
+      --policy-file /etc/placement/policy.json
+      --output-file /etc/placement/policy.yaml
+  when: placement_policy_json_exists.stat.exists
+  args:
+    creates: "{{ placement_policy_yaml_path }}"
+
+- name: Remove old Placement policy.json
+  ansible.builtin.file:
+    path: "{{ placement_policy_json_path }}"
+    state: absent
+  when: placement_policy_json_exists.stat.exists

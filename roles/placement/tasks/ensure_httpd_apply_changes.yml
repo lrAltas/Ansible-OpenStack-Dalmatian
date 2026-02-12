@@ -1,0 +1,6 @@
+---
+- name: Restart Httpd
+  ansible.builtin.service:
+    name: httpd
+    state: restarted
+    enabled: true

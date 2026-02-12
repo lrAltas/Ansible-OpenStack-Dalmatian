@@ -1,0 +1,10 @@
+---
+- name: Check Placement status
+  ansible.builtin.command:
+    cmd: placement-status upgrade Check
+  changed_when: false
+  register: placement_status
+
+- name: Show Placement status output
+  ansible.builtin.debug:
+    msg: placement_status.stdout_lines

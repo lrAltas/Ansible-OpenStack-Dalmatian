@@ -1,0 +1,33 @@
+---
+- name: Create Placement's service user indefault domain
+  openstack.cloud.identity_user:
+    name: placement
+    domain: Default
+    password: "{{ placement_openstack_service_password }}"
+    state: present
+
+- name: Assign placement role to placement service user
+  openstack.cloud.role_assignment:
+    project: service
+    role: admin
+    user: placement
+    state: present
+
+- name: Create Placement's service entity
+  openstack.cloud.catalog_service:
+    name: placement
+    description: "Placement API"
+    service_type: placement
+    state: present
+
+- name: Create Placement service endpoints
+  openstack.cloud.endpoint:
+    service: placement
+    endpoint_interface: "{{ item }}"
+    url: "http://{{ hostvars[groups['controller'][0]].inventory_hostname }}:8778"
+    region: "{{ placement_region | default('RegionOne') }}"
+    state: present
+  loop:
+    - public
+    - internal
+    - admin

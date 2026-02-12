@@ -1,0 +1,15 @@
+---
+# 这个task的添加是为了解决在在中这个问题提示的
+# The placement service for controller:RegionOne exists but does not have any supported versions.
+# This task is added to solve the problem of the placement service for controller:RegionOne existing but not having any supported versions.
+- name: Deploy Httpd configuration file(00-placement-api.conf)
+  ansible.builtin.copy:
+    src: "{{ placement_httpd_conf_src }}"
+    dest: "{{ placement_httpd_conf_path }}"
+    mode: '0644'
+
+- name: Restart the httpd service
+  ansible.builtin.service:
+    name: httpd
+    state: restarted
+    enabled: true

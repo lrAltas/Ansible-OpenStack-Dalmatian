@@ -1,0 +1,20 @@
+---
+- name: Create Placement database
+  community.mysql.mysql_db:
+    login_user: root
+    login_unix_socket: "{{ placement_db_conf.mariadb_socket_path }}"
+    name: "{{ placement_db_conf.db_name }}"
+    state: present
+
+- name: Create Placement db user
+  community.mysql.mysql_user:
+    login_user: root
+    login_unix_socket: "{{ placement_db_conf.mariadb_socket_path }}"
+    name: "{{ placement_db_conf.db_user_name }}"
+    password: "{{ placement_db_conf.db_user_password }}"
+    priv: "{{ placement_db_conf.db_name }}.*:ALL"
+    state: present
+    host: "{{ item }}"
+  loop:
+    - "%"
+    - "localhost"

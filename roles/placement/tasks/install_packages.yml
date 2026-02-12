@@ -1,0 +1,5 @@
+---
+- name: Install Placement Packages
+  ansible.builtin.dnf:
+    name: "{{ placement_packages }}"
+    state: present

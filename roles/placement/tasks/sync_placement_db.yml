@@ -1,0 +1,31 @@
+---
+- name: Check if placement db sync mark file exists
+  ansible.builtin.stat:
+    path: "{{ placement_mark_files_path.db_sync }}"
+  register: placement_db_sync_mark
+
+- name: Run placement-manage db sync
+  ansible.builtin.command:
+    cmd: placement-manage db sync
+  become: true
+  become_user: placement
+  register: placement_db_sync
+  changed_when: false
+  when: not placement_db_sync_mark.stat.exists
+
+- name: Create placement db sync mark file
+  ansible.builtin.file:
+    path: "{{ placement_mark_files_path.db_sync }}"
+    state: touch
+    mode: '0644'
+  when: not placement_db_sync_mark.stat.exists
+
+- name: Show db sync output and result
+  ansible.builtin.debug:
+    msg: placement_db_sync.stdout_lines
+
+- name: Mark Placement database sync
+  ansible.builtin.file:
+    path: "{{ placement_mark_files_path.db_sync }}"
+    state: touch
+    mode: '0644'
