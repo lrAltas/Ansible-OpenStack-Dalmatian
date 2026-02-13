@@ -42,4 +42,33 @@
       ansible.builtin.import_tasks: sync_cinder_db.yml
       tags: sync_cinder_db
 
-    - name: Re
+    - name: Restart related services
+      ansible.builtin.import_tasks: ensure_service_running.yml
+      tags: restart_ related_services
+
+    - name: Create mark file to indicate the tasks has been run
+      ansible.builtin.file:
+        path: "{{ cinder_mark_files_path.controller_node_success }}"
+        state: touch
+        mode: '0644'
+
+- name: Run cinder clients node tasks
+  when: "'cinder_clients' in group_names"
+  block:
+    - name: Install cinder client packages
+      ansible.builtin.import_tasks: install_packages.yml
+      tags: install_cinder_client_packages
+
+    - name: Deploy Cinder client configuration files
+      ansible.builtin.import_tasks: deploy_cinder_conf_files.yml
+      tags: deploy_cinder_client_conf
+
+    - name: Restart related services
+      ansible.builtin.import_tasks: ensure_service_running.yml
+      tags: restart_cinder_client_related_services
+
+    - name: Create mark file to indicate the tasks has been run
+      ansible.builtin.file:
+        path: "{{ cinder_mark_files_path.storage_node_success }}"
+        state: touch
+        mode: '0644'

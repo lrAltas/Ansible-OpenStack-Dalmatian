@@ -18,7 +18,7 @@
   when: "'cinder_servers' in group_names"
 
 - name: Restart Related Services
-  when: "'cinder_storage_nodes' in group_names"
+  when: "'cinder_clients' in group_names"
   block:
     - name: Restart openstack-cinder-volume
       ansible.builtin.service:
