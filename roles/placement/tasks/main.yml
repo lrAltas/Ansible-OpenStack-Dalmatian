@@ -20,7 +20,7 @@
       when: placement_success_mark_file.stat.exists
 
 - name: Create Placement database and database user
-  ansible.buitlin.import_tasks: create_placement_db_and_db_user.yml
+  ansible.builtin.import_tasks: create_placement_db_and_db_user.yml
   tags:
     - install
     - create_placement_db_and_db_user

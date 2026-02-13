@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MIT-0
 ---
 # tasks file for roles/nova
-- name: Check if the tasks has been run(controller)
+- name: Check if the tasks has been running
   when: "'controller' in group_names"
   block:
     - name: Ensure Mark Directory Exists
@@ -19,7 +19,7 @@
       ansible.builtin.meta: end_role
       when: nova_success_mark_file.stat.exists
 
-- name: Check if the tasks has been run(compute)
+- name: Check if the tasks has been running
   when: "'compute' in group_names"
   block:
     - name: Ensure Mark Directory Exists
@@ -28,7 +28,7 @@
         state: directory
         mode: '0755'
 
-    - name: Check if nova tasks have been run
+    - name: Check if placement tasks have been run
       ansible.builtin.stat:
         name: "{{ nova_mark_files_path.compute_success }}"
       register: nova_success_mark_file
@@ -37,68 +37,64 @@
       ansible.builtin.meta: end_role
       when: nova_success_mark_file.stat.exists
 
-- name: Create Nova database and database user
-  ansible.builtin.import_tasks: create_nova_db.yml
-  tags:
-    - install
-    - create_nova_db_and_db_user
+- name: Controller node tasks
   when: "'controller' in group_names"
+  block:
+    - name: Create Nova database and user
+      ansible.builtin.import_tasks: create_nova_db.yml
+      tags: create_nova_db
 
-- name: Create Nova's service user,role,endpoints,and project
-  ansible.builtin.import_tasks: create_nova_service.yml
-  tags:
-    - install
-    - create_nova_service_user_role_endpoints_and_project
-  when: "'controller' in group_names"
+    - name: Create Nova service user,role,endpoints,and project
+      ansible.builtin.import_tasks: create_nova_service.yml
+      tags: create_nova_service_user_role_endpoints_and_project
 
-- name: Install Nova Packages
-  ansible.builtin.import_tasks: install_packages.yml
-  tags:
-    - install
+    - name: Install Nova Packages
+      ansible.builtin.import_tasks: install_packages.yml
+      tags: install_nova_packages_controller
 
-- name: Deploy Nova Configuration File
-  ansible.builtin.import_tasks: deploy_nova_conf_file.yml
-  tags:
-    - install
-    - configure_nova
+    - name: Deploy Nova Configuration Files
+      ansible.builtin.import_tasks: deploy_nova_conf_file.yml
+      tags: deploy_nova_conf_files
 
-- name: Configure nova db
-  ansible.builtin.import_tasks: configure_nova_db.yml
-  tags:
-    - install
-    - sync_nova_db
-  when: "'controller' in group_names"
+    - name: Sync Nova Database
+      ansible.builtin.import_tasks: configure_nova_db.yml
+      tags: sync_nova_db
 
-- name: Verify Result
-  ansible.builtin.import_tasks: verify_result.yml
-  tags:
-    - install
-    - verify_nova_db_sync
-  when: "'controller' in group_names"
+    - name: Verify results
+      ansible.builtin.import_tasks: verify_result.yml
+      tags: verify_results
 
-- name: Ensure libvirtd is running and enabled
-  ansible.builtin.import_tasks: ensure_libvirtd_running.yml
-  tags:
-    - install
-    - ensure_libvirtd_running
+    - name: Ensure Nova Services are started
+      ansible.builtin.import_tasks: ensure_nova_services_running.yml
+      tags: ensure_nova_services_restarted
+
+    - name: Create mark file to indicate the nova controller has been configured
+      ansible.builtin.file:
+        path: "{{ nova_mark_files_path.controller_success }}"
+        state: touch
+        mode: '0644'
+
+- name: Compute Node Tasks
   when: "'compute' in group_names"
+  block:
+    - name: Install nova packages
+      ansible.builtin.import_tasks: install_packages.yml
+      tags: install_nova_compute_packages
 
-- name: Ensure nova services are running and enabled
-  ansible.builtin.import_tasks: ensure_nova_services_running.yml
-  tags:
-    - install
-    - ensure_nova_services_running
+    - name: Deploy nova compute configuration files
+      ansible.builtin.import_tasks: deploy_nova_conf_file.yml
+      tags: deploy_nova_compute_conf_files
 
-- name: Create mark file to indicate the nova controller has been configured
-  ansible.builtin.file:
-    path: "{{ nova_mark_files_path.controller_success }}"
-    state: touch
-    mode: '0644'
-  when: "'controller' in group_names"
+    - name: Ensure libvirtd is running and enabled
+      ansible.builtin.import_tasks: ensure_libvirtd_running.yml
+      tags: ensure_libvirtd_running
 
-- name: Create mark file to indcate nova compute tasks have been run
-  ansible.builtin.file:
-    path: "{{ nova_mark_files_path.compute_success }}"
-    state: touch
-    mode: '0644'
-  when: "'compute' in group_names"
+    - name: Ensure nova-compute service is started
+      ansible.builtin.import_tasks: ensure_nova_services_running.yml
+      tags: ensure_nova_compute_service_running
+
+    - name: Create mark file to indcate nova compute tasks have been run
+      ansible.builtin.file:
+        path: "{{ nova_mark_files_path.compute_success }}"
+        state: touch
+        mode: '0644'

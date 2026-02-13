@@ -1,0 +1,33 @@
+---
+- name: Start and Enable Cinder Services
+  ansible.builtin.service:
+    state: started
+    name: "{{ item }}"
+    enabled: true
+  loop:
+    - openstack-cinder-api.service
+    - openstack-cinder-scheduler.service
+    - openstack-cinder-volume.service
+  when: "'cinder_servers' in group_names"
+
+- name: Restart httpd Service
+  ansible.builtin.service:
+    name: httpd
+    state: restarted
+    enabled: true
+  when: "'cinder_servers' in group_names"
+
+- name: Restart Related Services
+  when: "'cinder_storage_nodes' in group_names"
+  block:
+    - name: Restart openstack-cinder-volume
+      ansible.builtin.service:
+        name: openstack-cinder-volume
+        state: restarted
+        enabled: true
+
+    - name: Restart target.service
+      ansible.builtin.service:
+        name: target
+        state: restarted
+        enabled: true

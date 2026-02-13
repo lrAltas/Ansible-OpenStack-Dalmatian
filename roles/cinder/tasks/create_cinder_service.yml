@@ -1,0 +1,36 @@
+---
+- name: Create Cinder Service User and endpoints
+  when: "'cinder_servers' in group_names"
+  block:
+    - name: Create Cinder Service User in Default domain
+      openstack.cloud.identity_user:
+        name: cinder
+        domain: default
+        password: "{{ cinder_openstack_service_password.cinder }}"
+        state: present
+
+    - name: Assign Cinder Service User to admin role
+      openstack.cloud.role_assignment:
+        user: cinder
+        role: admin
+        project: service
+        state: present
+
+    - name: Create Cinder Service
+      openstack.cloud.identity_service:
+        name: cinderv3
+        description: OpenStack Block Storage Service
+        type: volumev3
+        state: present
+
+    - name: Create Cinder Service endpoints
+      openstack.cloud.endpoint:
+        service: cinderv3
+        endpoint_interface: "{{ item.endpoint_interface }}"
+        url: "{{ item.url }}"
+        region_name: "{{ cinder_region }}"
+        state: present
+      loop:
+        - { endpoint_interface: public, url: "http://{{ hostvars[groups['controller'][0]].inventory_hostname }}:8776/v3/%(project_id)s" }
+        - { endpoint_interface: internal, url: "http://{{ hostvars[groups['controller'][0]].inventory_hostname }}:8776/v3/%(project_id)s" }
+        - { endpoint_interface: admin, url: "http://{{ hostvars[groups['controller'][0]].inventory_hostname }}:8776/v3/%(project_id)s" }

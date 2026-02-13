@@ -7,7 +7,7 @@
     - "'controller' in group_names"
     - ansible_facts['os_family'] == "RedHat"
 
-- name: Install Nova Compute Packages
+- name: Install Nova Compute Packages(compute)
   ansible.builtin.dnf:
     name: "{{ nova_compute_packages }}"
     state: present

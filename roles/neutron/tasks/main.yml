@@ -41,9 +41,6 @@
   ansible.builtin.import_tasks: add_sysctl_parameters.yml
   tags: add_sysctl_parameters
 
-- name: Configure Open vSwitch for Neutron
-  ansible.builtin.import_tasks: neutron_nic_configuration.yml
-  tags: configure_nic
 
 - name: Controller Node Tasks
   when: "'controller' in group_names"
@@ -72,6 +69,10 @@
       ansible.builtin.import_tasks: sync_neutron_db.yml
       tags: sync_neutron_db
 
+    - name: Configure Open vSwitch for Neutron
+      ansible.builtin.import_tasks: neutron_nic_configuration.yml
+      tags: configure_nic_and_ovs_bridge
+
     - name: Restart Neutron Services
       ansible.builtin.import_tasks: restart_necessary_services.yml
       tags: restart_neutron_services
@@ -92,6 +93,10 @@
     - name: Deploy neutron configuration files
       ansible.builtin.import_tasks: deploy_neutron_conf_file.yml
       tags: deploy_neutron_conf
+
+    - name: Configure Open vSwitch for Neutron
+      ansible.builtin.import_tasks: neutron_nic_configuration.yml
+      tags: configure_nic
 
     - name: Configure Nova to use Neutron
       ansible.builtin.import_tasks: configure_nova_use_neutron.yml

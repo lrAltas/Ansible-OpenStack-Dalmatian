@@ -1,10 +1,45 @@
 # SPDX-License-Identifier: MIT-0
 ---
 # tasks file for roles/cinder
-- name: Run controller tasks
-  ansible.builtin.import_tasks: cinder_controller.yml
-  when: "'controller' in group_names"
+- name: Check if the tasks has been running
+  when: "'cinder_servers' in group_names or 'cinder_clients' in group_names"
+  block:
+    - name: Ensure Mark Directory Exists
+      ansible.builtin.file:
+        path: "{{ cinder_mark_dir_path }}"
+        state: directory
+        mode: '0755'
 
-- name: Run cinder_node tasks
-  ansible.builtin.import_tasks: cinder_storage_node.yml
-  when: "'cinder' in group_names"
+    - name: Check if cinder tasks have been run
+      ansible.builtin.stat:
+        name: "{{ cinder_mark_files_path.controller_node_success }}"
+      register: cinder_mark_file
+
+    - name: Skip if cinder tasks have been run
+      ansible.builtin.meta: end_role
+      when: cinder_mark_file.stat.exists
+
+- name: Run cinder controller node tasks
+  when: "'cinder_servers' in group_names"
+  block:
+    - name: Create Cinder Dtabase and user
+      ansible.builtin.import_tasks: create_cinder_db.yml
+      tags: create_cinder_db
+
+    - name: Create Cinder Service User and endpoints
+      ansible.builtin.import_tasks: create_cinder_service.yml
+      tags: cinder_controller
+
+    - name: Install cinder packages
+      ansible.builtin.import_tasks: install_packages.yml
+      tags: install_cinder_packages
+
+    - name: Deploy Cinder configuration files
+      ansible.builtin.import_tasks: deploy_cinder_conf_files.yml
+      tags: deploy_cinder_conf
+
+    - name: Sync Cinder Database
+      ansible.builtin.import_tasks: sync_cinder_db.yml
+      tags: sync_cinder_db
+
+    - name: Re

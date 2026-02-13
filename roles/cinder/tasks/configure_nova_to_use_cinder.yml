@@ -1,0 +1,11 @@
+---
+- name: Configure Nova to Use Cinder
+  community.general.ini_file:
+    path: "{{ cinder_conf_path.nova_conf }}"
+    section: "{{ item.section }}"
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+    mode: '0644'
+  loop:
+    - { section: cinder, option: os_region_name, value: RegionOne }
+  when: "'cinder_servers' in group_names"

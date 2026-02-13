@@ -1,0 +1,18 @@
+---
+- name: Install and Configure Cinder
+  when:
+    - "'cinder_servers' in group_names"
+    - ansible_facts['os_family'] == "RedHat"
+  block:
+    - name: Install Cinder Packages
+      ansible.builtin.dnf:
+        name: "{{ cinder_packages }}"
+        state: present
+
+- name: Install Cinder Packages
+  ansible.builtin.dnf:
+    name: "{{ cinder_packages }}"
+    state: present
+  when:
+    - "'cinder_clients' in group_names"
+    - ansible_facts['os_family'] == "RedHat"

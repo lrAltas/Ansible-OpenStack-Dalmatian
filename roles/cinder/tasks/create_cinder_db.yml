@@ -1,0 +1,22 @@
+---
+- name: Create Cinder Database and User
+  when: "'cinder_servers' in group_names"
+  block:
+    - name: Create Cinder Database
+      community.mysql.mysql_db:
+        login_user: root
+        login_unix_socket: "{{ cinder_db_conf.mariadb_socket_path }}"
+        name: "{{ cinder_db_conf.db_name }}"
+        state: present
+
+    - name: Create Cinder Database User
+      community.mysql.mysql_user:
+        login_user: root
+        login_unix_socket: "{{ cinder_db_conf.mariadb_socket_path }}"
+        name: "{{ cinder_db_conf.db_user_name }}"
+        password: "{{ cinder_db_conf.db_user_password }}"
+        state: present
+        host: "{{ item }}"
+      loop:
+        - "localhost"
+        - "%"

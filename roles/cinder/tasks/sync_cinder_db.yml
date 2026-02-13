@@ -1,0 +1,24 @@
+---
+# 同步Cinder数据库
+- name: Sync Cinder Database
+  when: "'cinder_servers' in group_names"
+  block:
+    - name: Ensure Cinder database is synced
+      ansible.builtin.command: cinder-manage db sync
+      become: true
+      become_user: cinder
+      args:
+        creates: "{{ cinder_mark_files_path.cinder_db_synced_mark_path }}"
+      register: cinder_db_sync
+      ignore_errors: false
+
+    - name: Mark Cinder database as synced
+      ansible.builtin.file:
+        path: "{{ cinder_mark_files_path.cinder_db_synced_mark_path }}"
+        state: touch
+        mode: '0644'
+      when: cinder_db_sync.rc == 0
+
+    - name: Show db_sync output
+      ansible.builtin.debug:
+        msg: "{{ cinder_db_sync.stdout_lines | default([]) }}"

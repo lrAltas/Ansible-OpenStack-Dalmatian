@@ -1,0 +1,14 @@
+---
+- name: Deploy Cinder Configuration from Templates
+  ansible.builtin.template:
+    src: "{{ cinder_conf_templates_src_path.cinder_conf }}"
+    dest: "{{ cinder_conf_path.cinder_conf }}"
+    mode: "0644"
+  when: "'cinder_servers' in group_names"
+
+- name: Deploy Cinder conf file(for cinder_clients)
+  ansible.builtin.template:
+    src: "{{ cinder_conf_templates_src_path.cinder_conf }}"
+    dest: "{{ cinder_conf_path.cinder_storage_conf }}"
+    mode: "0644"
+  when: "'cinder_clients' in group_names"
