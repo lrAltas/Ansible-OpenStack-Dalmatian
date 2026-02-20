@@ -1,3 +1,11 @@
+[all]
+controller.openstack.suying ansible_host=10.1.10.10
+compute01.openstack.suying ansible_host=10.1.10.11
+compute02.openstack.suying ansible_host=10.1.10.12
+dns.openstack.suying ansible_host=10.1.10.2
+cephadm01.openstack.suying ansible_host=10.1.10.50
+cephadm02.openstack.suying ansible_host=10.1.10.51
+cephadm03.openstack.suying ansible_host=10.1.10.52
 [controller]
 controller.openstack.suying ansible_host=10.1.10.10
 [compute]

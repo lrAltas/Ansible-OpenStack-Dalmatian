@@ -9,3 +9,5 @@ collections:
   - name: openstack.cloud
   - name: community.crypto
   - name: openvswitch.openvswitch
+  - name: ceph.automation
+
