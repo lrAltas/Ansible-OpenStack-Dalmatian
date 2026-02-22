@@ -1,0 +1,12 @@
+---
+- name: Install Ceph Packages
+  block:
+    - name: Install Ceph packages
+      ansible.builtin.dnf:
+        name: "{{ ceph_release_packages }}"
+        state: present
+
+    - name: Install Ceph common packages
+      ansible.builtin.dnf:
+        name: "{{ ceph_common_packages }}"
+        state: present

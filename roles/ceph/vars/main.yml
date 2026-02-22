@@ -1,3 +1,170 @@
-#SPDX-License-Identifier: MIT-0
+# SPDX-License-Identifier: MIT-0
 ---
 # vars file for roles/ceph
+ceph_mark_dir_path: /root/.marks
+ceph_mark_file_path:
+  role_success: "{{ ceph_mark_dir_path }}/ceph_success.mark"
+  import_libvirt_secret_file: "{{ ceph_mark_dir_path }}/import_libvirt_secret_file.mark"
+  import_libvirt_key_file: "{{ ceph_mark_dir_path }}/import_libvirt_key_file.mark"
+
+ceph_openstack_pools:
+  - name: "volumes"
+    pg_num: 128
+    pgp_num: 128
+  - name: "images"
+    pg_num: 128
+    pgp_num: 128
+  - name: "vms"
+    pg_num: 128
+    pgp_num: 128
+  - name: "backups"
+    pg_num: 128
+    pgp_num: 128
+
+ceph_keyring_dir: /etc/ceph
+ceph_keyring_file_path:
+  cinder: "{{ ceph_keyring_dir }}/ceph.client.cinder.keyring"
+  cinder_backup: "{{ ceph_keyring_dir }}/ceph.client.cinder-backup.keyring"
+  cinder_glance: "{{ ceph_keyring_dir }}/ceph.client.glance.keyring"
+
+ceph_conf_file: /etc/ceph/ceph.conf
+
+ceph_local_files_dest_dir_path: roles/ceph/files/
+ceph_local_files_dest_path:
+  ceph_conf: "{{ ceph_local_files_dest_dir_path }}/ceph.conf"
+  cinder_keyring: "{{ ceph_local_files_dest_dir_path }}/ceph.client.cinder.keyring"
+  cinder_backup_keyring: "{{ ceph_local_files_dest_dir_path }}/ceph.client.cinder-backup.keyring"
+  glance_keyring: "{{ ceph_local_files_dest_dir_path }}/ceph.client.glance.keyring"
+
+ceph_libvirt_uuid: b40f89fb-77d5-4f68-84fd-f3129abc8002
+
+ceph_libvirt_secret_file_local_path: roles/ceph/templates/secret.xml.j2
+ceph_libvirt_secret_file_dest_path: "{{ ceph_temp_dir_path }}/secret.xml"
+
+ceph_temp_dir_path: /root/.temp
+
+ceph_release_packages:
+  - centos-release-ceph-reef
+
+ceph_common_packages:
+  - ceph-common
+
+ceph_glance_api_conf_file: "/etc/glance/glance-api.conf"
+
+ceph_glance_store_old_options_to_remove:
+  - stores
+  - default_store
+  - filesystem_store_datadir
+
+ceph_glance_store_new_configs:
+  - option: stores
+    value: rbd,file,http
+    section: glance_store
+  - option: default_store
+    value: rbd
+    section: glance_store
+  - option: rbd_store_pool
+    value: images
+    section: glance_store
+  - option: rbd_store_user
+    value: glance
+    section: glance_store
+  - option: rbd_store_ceph_conf
+    value: /etc/ceph/ceph.conf
+    section: glance_store
+  - option: rbd_store_chunk_size
+    value: 8
+    section: glance_store
+
+ceph_cinder_conf_file_path: "/etc/cinder/cinder.conf"
+ceph_controller_cinder_conf_new_configs:
+  - option: default_volume_type
+    value: ceph
+    section: DEFAULT
+
+ceph_compute_cinder_conf_default_new_configs:
+  - option: enabled_backends
+    value: ceph,lvm
+    section: DEFAULT
+  - option: backup_driver
+    value: cinder.backup.drivers.ceph.CephBackupDriver
+    section: DEFAULT
+  - option: backup_ceph_conf
+    value: "{{ ceph_conf_file }}"
+    section: DEFAULT
+  - option: backup_ceph_user
+    value: cinder-backup
+    section: DEFAULT
+  - option: backup_ceph_chunk_size
+    value: 4194304
+    section: DEFAULT
+  - option: backup_ceph_pool
+    value: backups
+    section: DEFAULT
+  - option: backup_ceph_strip_unit
+    value: 0
+    section: DEFAULT
+  - option: backup_ceph_strip_count
+    value: 0
+    section: DEFAULT
+  - option: restore_discard_excess_bytes
+    value: true
+    section: DEFAULT
+
+ceph_compute_ceph_section_cinder_conf_new_configs:
+  - option: volume_driver
+    value: cinder.volume.drivers.rbd.RBDDriver
+    section: ceph
+  - option: rbd_pool
+    value: volumes
+    section: ceph
+  - option: rbd_ceph_conf
+    value: /etc/ceph/ceph.conf
+    section: ceph
+  - option: rbd_user
+    value: cinder
+    section: ceph
+  - option: rbd_secret_uuid
+    value: "{{ ceph_libvirt_uuid }}"
+    section: ceph
+  - option: rbd_flatten_volume_from_snapshot
+    value: false
+    section: ceph
+  - option: rbd_max_clone_depth
+    value: 5
+    section: ceph
+  - option: rbd_store_chunk_size
+    value: 4
+    section: ceph
+  - option: rados_connect_timeout
+    value: -1
+    section: ceph
+  - option: glance_api_version
+    value: 2
+    section: ceph
+  - option: volume_backend_name
+    value: ceph
+    section: ceph
+
+ceph_nova_conf_file_path: "/etc/nova/nova.conf"
+ceph_nova_conf_default_new_configs:
+  - option: live_migration_flag
+    value: VIR_MIGRATE_UNDEFINE_SOURCE,VIR_MIGRATE_PEER2PEER,VIR_MIGRATE_LIVE,VIR_MIGRATE_PERSIST_DEST,VIR_MIGRATE_UNSAFE
+    section: DEFAULT
+
+ceph_nova_conf_libvirt_new_configs:
+  - option: images_type
+    value: rbd
+    section: libvirt
+  - option: images_rbd_pool
+    value: vms
+    section: libvirt
+  - option: images_rbd_ceph_conf
+    value: "{{ ceph_conf_file }}"
+    section: libvirt
+  - option: rbd_user
+    value: cinder
+    section: libvirt
+  - option: rbd_secret_uuid
+    value: "{{ ceph_libvirt_uuid }}"
+    section: libvirt

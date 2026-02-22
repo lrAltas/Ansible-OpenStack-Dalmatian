@@ -1,3 +1,25 @@
 # SPDX-License-Identifier: MIT-0
 ---
 # tasks file for roles/ceph
+- name: Check if the ceph tasks have been running
+  block:
+    - name: Ensure Mark Directory Exists
+      ansible.builtin.file:
+        path: "{{ ceph_mark_dir_path }}"
+        state: directory
+        mode: '0755'
+
+    - name: Check if ceph tasks have been run
+      ansible.builtin.stat:
+        name: "{{ ceph_mark_file_path }}"
+      register: ceph_mark_file
+
+    - name: Skip if ceph tasks have been run
+      ansible.builtin.meta: end_role
+      when: ceph_mark_file.stat.exists
+
+- name: Create mark file to indicate ceph tasks have been run
+  ansible.builtin.file:
+    path: "{{ ceph_mark_file_path }}"
+    state: touch
+    mode: '0644'

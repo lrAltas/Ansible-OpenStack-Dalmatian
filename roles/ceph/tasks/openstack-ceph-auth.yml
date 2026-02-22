@@ -1,0 +1,90 @@
+---
+- name: Configure Ceph auth keys for OpenStack RBD integration
+  block:
+    - name: Create Ceph key for client.cinder
+      ceph.automation.ceph_key:
+        name: client.cinder
+        state: present
+        caps:
+          mon: profile rbd
+          osd: >-
+            profile rbd pool=volumes,
+            profile rbd pool=vms,
+            profile rbd-read-only pool=images
+          mgr: >-
+            profile rbd pool=volumes,
+            profile rbd pool=vms
+        dest: "{{ ceph_keyring_file_path.cinder }}"
+        owner: root
+        group: root
+        mode: '0600'
+        backup: true
+      delegate_to: "{{ ceph_bootstrap }}"
+      run_once: true
+      register: ceph_cinder_key
+
+    - name: Create Ceph key for client.cinder-backup
+      ceph.automation.ceph_key:
+        name: client.cinder-backup
+        state: present
+        caps:
+          mon: profile rbd
+          osd: profile rbd pool=backups
+          mgr: profile rbd pool=backups
+        dest: "{{ ceph_keyring_file_path.cinder_backup }}"
+        owner: root
+        group: root
+        mode: '0600'
+        backup: true
+      delegate_to: "{{ ceph_bootstrap }}"
+      run_once: true
+      register: ceph_cinder_backup_key
+
+    - name: Create Ceph key for client.glance
+      ceph.automation.ceph_key:
+        name: client.glance
+        state: present
+        caps:
+          mon: profile rbd
+          osd: profile rbd pool=images
+          mgr: profile rbd pool=images
+        dest: "{{ ceph_keyring_file_path.cinder_glance }}"
+        owner: root
+        group: root
+        mode: '0600'
+        backup: true
+      delegate_to: "{{ ceph_bootstrap }}"
+      run_once: true
+      register: ceph_glance_key
+
+    - name: Verify all keys created
+      ansible.builtin.command: ceph auth get client.{{ item }}
+      loop:
+        - cinder
+        - cinder-backup
+        - glance
+      register: ceph_auth_get
+      changed_when: false
+      delegate_to: "{{ ceph_bootstrap }}"
+      run_once: true
+
+    - name: Debug auth caps
+      ansible.builtin.debug:
+        msg: "{{ ceph_auth_get.results | map(attribute='stdout_lines') | list }}"
+
+- name: Fetch files to ansible control node
+  ansible.builtin.fetch:
+    src: "{{ item.src }}"
+    dest: "{{ ceph_local_files_dest_dir_path }}"
+    flat: true
+  loop:
+    - src: "{{ ceph_keyring_file_path.cinder }}"
+      dest: "{{ ceph_local_files_dest_path.cinder_keyring }}"
+    - src: "{{ ceph_keyring_file_path.cinder_backup }}"
+      dest: "{{ ceph_local_files_dest_path.cinder_backup_keyring }}"
+    - src: "{{ ceph_keyring_file_path.cinder_glance }}"
+      dest: "{{ ceph_local_files_dest_path.glance_keyring }}"
+    - src: "{{ ceph_conf_file }}"
+      dest: "{{ ceph_local_files_dest_path.ceph_conf }}"
+  delegate_to: "{{ ceph_bootstrap }}"
+  run_once: true

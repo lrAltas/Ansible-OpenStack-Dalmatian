@@ -1,0 +1,5 @@
+---
+- name: Test Dns server Deploy
+  hosts: dns_server
+  roles:
+    - dns_server

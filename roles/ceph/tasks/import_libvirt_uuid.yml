@@ -1,0 +1,41 @@
+---
+- name: Ensure temp dir exists for libvirt secret
+  ansible.builtin.file:
+    path: "{{ ceph_temp_dir_path }}"
+    state: directory
+    mode: '0755'
+
+- name: Deploy libvirt secret for ceph cluster
+  ansible.builtin.template:
+    src: "{{ ceph_libvirt_secret_file_local_path }}"
+    dest: "{{ ceph_libvirt_secret_file_dest_path }}"
+    owner: root
+    group: root
+    mode: '0600'
+
+- name: Do Import libvirt uuid for ceph cluster
+  block:
+    - name: Import libvirt uuid for ceph cluster
+      ansible.builtin.command: "virsh secret-define --file {{ ceph_libvirt_secret_file_dest_path }}"
+      changed_when: false
+      args:
+        creates: "{{ ceph_mark_file_path.import_libvirt_secret_file }}"
+
+    - name: Import Keys
+      ansible.builtin.command:
+        cmd: "virsh secret-set-value --secret {{ ceph_libvirt_uuid }} --base64 $(cat {{ ceph_keyring_file_path.cinder }} | grep key | awk -F ' ' '{print $3}')"
+      changed_when: false
+      args:
+        creates: "{{ ceph_mark_file_path.import_libvirt_key_file }}"
+
+    - name: Create mark file to indicate libvirt secret has been imported
+      ansible.builtin.file:
+        path: "{{ ceph_mark_file_path.import_libvirt_key_file }}"
+        state: touch
+        mode: '0644'
+
+    - name: Create mark file to indicate libvirt secret file has been imported
+      ansible.builtin.file:
+        path: "{{ ceph_mark_file_path.import_libvirt_secret_file }}"
+        state: touch
+        mode: '0644'

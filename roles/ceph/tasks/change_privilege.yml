@@ -1,0 +1,26 @@
+- name: Set ownership of ceph glance keyring on controller node
+  ansible.builtin.file:
+    state: file
+    path: "{{ ceph_keyring_file_path.cinder_glance }}"
+    owner: glance
+    group: glance
+    # mode: '0600'          # 通常 ceph keyring 建议 0600，可选加上
+    delegate_to: "{{ groups['controller'][0] }}"
+
+- name: Set ownership of ceph cinder keyring on compute node
+  ansible.builtin.file:
+    state: file
+    path: "{{ ceph_keyring_file_path.cinder }}"
+    owner: cinder
+    group: cinder
+    # mode: '0600'          # 通常 ceph keyring 建议 0600，可选加上
+    delegate_to: "{{ groups['compute'] }}"
+
+- name: Set ownership of ceph cinder backup keyring on compute node
+  ansible.builtin.file:
+    state: file
+    path: "{{ ceph_keyring_file_path.cinder_backup }}"
+    owner: cinder
+    group: cinder
+    # mode: '0600'          # 通常 ceph keyring 建议 0600，可选加上
+    delegate_to: "{{ groups['compute'] }}"

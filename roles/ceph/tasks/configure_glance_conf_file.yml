@@ -1,0 +1,21 @@
+---
+- name: Remove old/default file-based store configurations from [glance_store]
+  community.general.ini_file:
+    path: /etc/glance/glance-api.conf
+    section: glance_store
+    option: "{{ item }}"
+    state: absent
+    backup: true        # 自动备份原文件（改动前），强烈建议
+    mode: '0640'
+  loop: "{{ ceph_glance_store_old_options_to_remove }}"
+
+- name: Configure Glance to use Ceph as backend storage
+  community.general.ini_file:
+    path: "{{ ceph_glance_api_conf_file }}"
+    section: glance_store
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+    state: present
+    backup: true
+    mode: '0640'
+  loop: "{{ ceph_glance_store_new_configs }}"

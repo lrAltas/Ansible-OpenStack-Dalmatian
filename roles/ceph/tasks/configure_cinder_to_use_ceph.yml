@@ -1,0 +1,30 @@
+---
+- name: Add ceph configuration to cinder.conf on controller node
+  community.general.ini_file:
+    path: "{{ ceph_cinder_conf_file_path }}"
+    section: "{{ item.section }}"
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+    mode: '0644'
+  loop: "{{ ceph_controller_cinder_conf_new_configs }}"
+  delegate_to: "{{ groups['controller'][0] }}"
+
+- name: Add ceph configuration to cinder.conf on compute nodes
+  community.general.ini_file:
+    path: "{{ ceph_cinder_conf_file_path }}"
+    section: "{{ item.section }}"
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+    mode: '0644'
+  loop: "{{ ceph_compute_cinder_conf_default_new_configs }}"
+  delegate_to: "{{ groups['compute'] }}"
+
+- name: Add cinder ceph section conf
+  community.general.ini_file:
+    path: "{{ ceph_cinder_conf_file_path }}"
+    section: "{{ item.section }}"
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+    mode: '0644'
+  loop: "{{ ceph_compute_ceph_section_cinder_conf_new_configs }}"
+  delegate_to: "{{ groups['compute'] }}"

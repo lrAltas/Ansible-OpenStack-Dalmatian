@@ -1,0 +1,21 @@
+---
+- name: Restart glance-api
+  ansible.builtin.systemd:
+    name: openstack-glance-api
+    state: restarted
+    enabled: true
+  when: "'controller' in group_names"
+
+- name: Restart cinder secheduler
+  ansible.builtin.systemd:
+    name: openstack-cinder-scheduler
+    state: restarted
+    enabled: true
+  when: "'controller' in group_names"
+
+- name: Restart cinder-volume
+  ansible.builtin.systemd:
+    name: openstack-cinder-volume
+    state: restarted
+    enabled: true
+  when: "'compute' in group_names"

@@ -1,0 +1,19 @@
+- name: Insert default configuration into Nova configuration
+  community.general.ini_file:
+    path: "{{ ceph_nova_conf_file_path }}"
+    section: "{{ item.section }}"
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+    mode: '0644'
+  loop: "{{ ceph_nova_conf_default_new_configs }}"
+  when: "'compute' in group_names"
+
+- name: Insert ceph configuration into Nova configuration
+  community.general.ini_file:
+    path: "{{ ceph_nova_conf_file_path }}"
+    section: "{{ item.section }}"
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+    mode: '0644'
+  loop: "{{ ceph_nova_conf_libvirt_new_configs }}"
+  when: "'compute' in group_names"

@@ -12,6 +12,8 @@ glance_openstack_service_password: "000000"
 glance_region: RegionOne
 glance_packages:
   - openstack-glance
+  # 这个boto3是aws的python sdk，glance用它来访问aws s3兼容的对象存储（比如ceph的radosgw）作为镜像存储后端，所以需要安装这个包
+  - python3-boto3
 
 glance_api_conf_template_src: glance-api.conf.j2
 glance_api_conf_path: /etc/glance/glance-api.conf

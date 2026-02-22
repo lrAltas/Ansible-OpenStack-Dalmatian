@@ -1,0 +1,12 @@
+---
+- name: Create OpenStack use pools
+  block:
+    - name: Create OpenStack use pool
+      ceph.automation.ceph_pool:
+        name: "{{ item.name }}"
+        pg_num: "{{ item.pg_num }}"
+        pgp_num: "{{ item.pgp_num }}"
+        state: present
+      loop: "{{ ceph_openstack_pools }}"
+      tags: create_openstack_pools
+      delegate_to: "{{ groups['ceph_bootstrap'][0] }}"
