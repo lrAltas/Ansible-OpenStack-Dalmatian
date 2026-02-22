@@ -1,0 +1,18 @@
+---
+- name: Do Ceph tasks on bootstrap node
+  hosts: ceph_bootstrap
+  serial: 1
+  roles:
+    - ceph
+
+- name: Do Ceph tasks on controller node
+  hosts: controller
+  serial: 2
+  roles:
+    - ceph
+
+- name: Do Ceph tasks on compute node
+  hosts: compute
+  serial: 3
+  roles:
+    - ceph

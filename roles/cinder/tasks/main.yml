@@ -69,6 +69,6 @@
 
     - name: Create mark file to indicate the tasks has been run
       ansible.builtin.file:
-        path: "{{ cinder_mark_files_path.storage_node_success }}"
+        path: "{{ cinder_mark_files_path.controller_node_success }}"
         state: touch
         mode: '0644'

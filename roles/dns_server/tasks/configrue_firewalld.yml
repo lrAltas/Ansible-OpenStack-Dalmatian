@@ -1,10 +1,16 @@
 ---
-- name: Add firewall rules for DNS Server
-  ansible.posix.firewalld:
-    port: "{{ item }}"
-    permanent: true
-    state: enabled
-    immediate: true
-  loop:
-    - 53/udp
-    - 53/tcp
+# - name: Add firewall rules for DNS Server
+#   ansible.posix.firewalld:
+#     port: "{{ item }}"
+#     permanent: true
+#     state: disabled
+#     immediate: true
+#   loop:
+#     - 53/udp
+#     - 53/tcp
+
+- name: Stop firewalld
+  ansible.builtin.systemd:
+    name: firewalld
+    state: stopped
+    enabled: false

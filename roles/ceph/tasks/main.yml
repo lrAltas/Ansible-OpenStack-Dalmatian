@@ -11,7 +11,7 @@
 
     - name: Check if ceph tasks have been run
       ansible.builtin.stat:
-        name: "{{ ceph_mark_file_path }}"
+        name: "{{ ceph_mark_file_path.role_success }}"
       register: ceph_mark_file
 
     - name: Skip if ceph tasks have been run
@@ -50,7 +50,7 @@
 
 - name: Restart Glance API service to apply new configuration
   ansible.builtin.import_tasks: restart_service.yml
-  tagss: restart_glance_api
+  tags: restart_glance_api
   when: "'controller' in group_names"
 
 - name: Configure Cinder to use Ceph RBD as backend on controller node
@@ -64,7 +64,7 @@
   when: "'controller' in group_names"
 
 - name: Configure Cinder to use Ceph RBD as backend on compute nodes
-  ansible.builtin.import_tasks: configure_cinder_to_use_ceph_compute.yml
+  ansible.builtin.import_tasks: configure_cinder_to_use_ceph.yml
   tags: configure_cinder_ceph_backend_compute
   when: "'compute' in group_names"
 
@@ -95,6 +95,6 @@
 
 - name: Create mark file to indicate ceph tasks have been run
   ansible.builtin.file:
-    path: "{{ ceph_mark_file_path }}"
+    path: "{{ ceph_mark_file_path.role_success }}"
     state: touch
     mode: '0644'

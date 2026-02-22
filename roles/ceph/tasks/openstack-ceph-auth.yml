@@ -18,8 +18,7 @@
         owner: root
         group: root
         mode: '0600'
-        backup: true
-      delegate_to: "{{ ceph_bootstrap }}"
+      when: "'ceph_bootstrap' in group_names"
       run_once: true
       register: ceph_cinder_key
 
@@ -35,8 +34,7 @@
         owner: root
         group: root
         mode: '0600'
-        backup: true
-      delegate_to: "{{ ceph_bootstrap }}"
+      when: "'ceph_bootstrap' in group_names"
       run_once: true
       register: ceph_cinder_backup_key
 
@@ -52,8 +50,7 @@
         owner: root
         group: root
         mode: '0600'
-        backup: true
-      delegate_to: "{{ ceph_bootstrap }}"
+      when: "'ceph_bootstrap' in group_names"
       run_once: true
       register: ceph_glance_key
 
@@ -65,7 +62,7 @@
         - glance
       register: ceph_auth_get
       changed_when: false
-      delegate_to: "{{ ceph_bootstrap }}"
+      when: "'ceph_bootstrap' in group_names"
       run_once: true
 
     - name: Debug auth caps
@@ -86,5 +83,5 @@
       dest: "{{ ceph_local_files_dest_path.glance_keyring }}"
     - src: "{{ ceph_conf_file }}"
       dest: "{{ ceph_local_files_dest_path.ceph_conf }}"
-  delegate_to: "{{ ceph_bootstrap }}"
+  when: "'ceph_bootstrap' in group_names"
   run_once: true

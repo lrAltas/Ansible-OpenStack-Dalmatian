@@ -30,6 +30,7 @@
     - nova
     - neutron
     - dashboard
+    - cinder
 
 - name: Configrue Compute node
   hosts: compute
@@ -37,3 +38,4 @@
   roles:
     - nova
     - neutron
+    - cinder

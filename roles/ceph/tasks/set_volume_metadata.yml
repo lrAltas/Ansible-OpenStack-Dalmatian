@@ -1,8 +1,9 @@
 ---
 - name: Ensure Cinder volume type for Ceph
-  openstack.cloud.volume_type:   # ← 这里就是 openstack.cloud
+  openstack.cloud.volume_type:
     name: ceph
-    properties:
+    is_public: true
+    extra_specs:                     # ← 改成这个
       volume_backend_name: ceph
     state: present
   when: "'controller' in group_names"

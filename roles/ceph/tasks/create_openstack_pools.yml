@@ -1,5 +1,6 @@
 ---
 - name: Create OpenStack use pools
+  when: "'ceph_bootstrap' in group_names"
   block:
     - name: Create OpenStack use pool
       ceph.automation.ceph_pool:
@@ -9,4 +10,3 @@
         state: present
       loop: "{{ ceph_openstack_pools }}"
       tags: create_openstack_pools
-      delegate_to: "{{ groups['ceph_bootstrap'][0] }}"

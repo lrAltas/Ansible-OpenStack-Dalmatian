@@ -17,7 +17,7 @@
         state: present
 
     - name: Create Cinder Service
-      openstack.cloud.identity_service:
+      openstack.cloud.catalog_service:
         name: cinderv3
         description: OpenStack Block Storage Service
         type: volumev3
@@ -28,7 +28,7 @@
         service: cinderv3
         endpoint_interface: "{{ item.endpoint_interface }}"
         url: "{{ item.url }}"
-        region_name: "{{ cinder_region }}"
+        region: "{{ cinder_region }}"
         state: present
       loop:
         - { endpoint_interface: public, url: "http://{{ hostvars[groups['controller'][0]].inventory_hostname }}:8776/v3/%(project_id)s" }

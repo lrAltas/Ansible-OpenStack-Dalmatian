@@ -16,6 +16,7 @@
         name: "{{ cinder_db_conf.db_user_name }}"
         password: "{{ cinder_db_conf.db_user_password }}"
         state: present
+        priv: "{{ cinder_db_conf.db_name }}.*:ALL"          # 关键！授予所有权限
         host: "{{ item }}"
       loop:
         - "localhost"

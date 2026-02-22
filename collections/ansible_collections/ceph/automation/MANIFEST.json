@@ -1,0 +1,31 @@
+{
+ "collection_info": {
+  "namespace": "ceph",
+  "name": "automation",
+  "version": "1.1.0",
+  "authors": [
+   "Teoman ONAY <tonay@ibm.com>"
+  ],
+  "readme": "README.md",
+  "tags": [
+   "linux",
+   "tools"
+  ],
+  "description": "Ceph automation modules",
+  "license": [],
+  "license_file": "LICENSE",
+  "dependencies": {},
+  "repository": "https://github.com/ceph/ceph.automation",
+  "documentation": "https://docs.ceph.com/projects/ceph.automation",
+  "homepage": "https://github.com/ceph/ceph.automation",
+  "issues": "https://github.com/ceph/ceph.automation/issues"
+ },
+ "file_manifest_file": {
+  "name": "FILES.json",
+  "ftype": "file",
+  "chksum_type": "sha256",
+  "chksum_sha256": "8cb31d0314a05c5640520742015828d43eeb03598bc3e390144e9a946cb29e5c",
+  "format": 1
+ },
+ "format": 1
+}
