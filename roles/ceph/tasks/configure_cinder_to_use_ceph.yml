@@ -7,7 +7,7 @@
     value: "{{ item.value }}"
     mode: '0644'
   loop: "{{ ceph_controller_cinder_conf_new_configs }}"
-  delegate_to: "{{ groups['controller'][0] }}"
+  when: "'controller' in group_names"
 
 - name: Add ceph configuration to cinder.conf on compute nodes
   community.general.ini_file:
@@ -17,7 +17,7 @@
     value: "{{ item.value }}"
     mode: '0644'
   loop: "{{ ceph_compute_cinder_conf_default_new_configs }}"
-  delegate_to: "{{ groups['compute'] }}"
+  when: "'compute' in group_names"
 
 - name: Add cinder ceph section conf
   community.general.ini_file:
@@ -27,4 +27,4 @@
     value: "{{ item.value }}"
     mode: '0644'
   loop: "{{ ceph_compute_ceph_section_cinder_conf_new_configs }}"
-  delegate_to: "{{ groups['compute'] }}"
+  when: "'compute' in group_names"

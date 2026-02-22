@@ -1,0 +1,7 @@
+---
+- name: Restart cinder-volume
+  ansible.builtin.systemd:
+    name: openstack-cinder-volume
+    state: restarted
+    enabled: true
+  tags: restart_cinder_volume

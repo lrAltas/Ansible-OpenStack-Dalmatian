@@ -1,0 +1,7 @@
+---
+- name: Restart cinder-backup
+  ansible.builtin.systemd:
+    name: openstack-cinder-backup
+    state: restarted
+    enabled: true
+  tags: restart_cinder_backup

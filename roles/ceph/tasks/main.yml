@@ -18,6 +18,81 @@
       ansible.builtin.meta: end_role
       when: ceph_mark_file.stat.exists
 
+- name: Create ceph storage pools for OpenStack
+  ansible.builtin.import_tasks: create_openstack_pools.yml
+  tags: create_openstack_storage_pools
+  when: "'ceph_bootstrap' in group_names"
+
+- name: Create Ceph auth keys for OpenStack RBD integration
+  ansible.builtin.import_tasks: openstack-ceph-auth.yml
+  tags: create_openstack_ceph_auth_keys
+  when: "'ceph_bootstrap' in group_names"
+
+- name: Deploy Ceph auth keys for OpenStack services
+  ansible.builtin.import_tasks: deploy_ceph_auth_file.yml
+  tags: deploy_ceph_auth_keys
+  when: "'controller' in group_names or 'compute' in group_names"
+
+- name: Deploy libvirt secret for ceph cluster
+  ansible.builtin.import_tasks: import_libvirt_uuid.yml
+  tags: import_libvirt_uuid
+  when: "'compute' in group_names"
+
+- name: Install Ceph client packages on compute nodes
+  ansible.builtin.import_tasks: install_ceph_packages.yml
+  tags: install_ceph_client_packages
+  when: "'controller' in group_names or 'compute' in group_names"
+
+- name: Configure Glance to use Ceph RBD as backend
+  ansible.builtin.import_tasks: configure_glance_conf_file.yml
+  tags: configure_glance_ceph_backend
+  when: "'controller' in group_names"
+
+- name: Restart Glance API service to apply new configuration
+  ansible.builtin.import_tasks: restart_service.yml
+  tagss: restart_glance_api
+  when: "'controller' in group_names"
+
+- name: Configure Cinder to use Ceph RBD as backend on controller node
+  ansible.builtin.import_tasks: configure_cinder_to_use_ceph.yml
+  tags: configure_cinder_ceph_backend
+  when: "'controller' in group_names"
+
+- name: Restart Cinder services to apply new configuration
+  ansible.builtin.import_tasks: restart_service.yml
+  tags: restart_cinder_services
+  when: "'controller' in group_names"
+
+- name: Configure Cinder to use Ceph RBD as backend on compute nodes
+  ansible.builtin.import_tasks: configure_cinder_to_use_ceph_compute.yml
+  tags: configure_cinder_ceph_backend_compute
+  when: "'compute' in group_names"
+
+- name: Restart Cinder volume service on compute nodes
+  ansible.builtin.import_tasks: restart_cinder_volume.yml
+  tags: restart_cinder_volume
+  when: "'compute' in group_names"
+
+- name: Restart Cinder backup service on compute nodes
+  ansible.builtin.import_tasks: restart_cinder_backup.yml
+  tags: restart_cinder_backup
+  when: "'compute' in group_names"
+
+- name: Create Cinder volume type for Ceph
+  ansible.builtin.import_tasks: set_volume_metadata.yml
+  tags: create_cinder_volume_type
+  when: "'controller' in group_names"
+
+- name: Configure nova to use Ceph RBD as backend for ephemeral storage
+  ansible.builtin.import_tasks: config_nova_use_ceph.yml
+  tags: configure_nova_ceph_backend
+  when: "'compute' in group_names"
+
+- name: Restart nova compute service to apply new configuration
+  ansible.builtin.import_tasks: restart_service.yml
+  tags: restart_nova_compute
+  when: "'compute' in group_names"
+
 - name: Create mark file to indicate ceph tasks have been run
   ansible.builtin.file:
     path: "{{ ceph_mark_file_path }}"

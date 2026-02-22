@@ -16,7 +16,7 @@
     - { src: "{{ ceph_local_files_dest_path.cinder_keyring }}", dest: "{{ ceph_keyring_file_path.cinder }}" }
     - { src: "{{ ceph_local_files_dest_path.ceph_conf }}", dest: "{{ ceph_conf_file }}" }
     - { src: "{{ ceph_local_files_dest_path.glance_keyring }}", dest: "{{ ceph_keyring_file_path.cinder_glance }}" }
-  delegate_to: "{{ groups['controller'][0] }}"
+  when: "'controller' in group_names"
 
 - name: Deploy Ceph auth keys for OpenStack services for compute nodes
   ansible.builtin.copy:
@@ -28,6 +28,5 @@
   loop:
     - { src: "{{ ceph_local_files_dest_path.cinder_keyring }}", dest: "{{ ceph_keyring_file_path.cinder }}" }
     - { src: "{{ ceph_local_files_dest_path.ceph_conf }}", dest: "{{ ceph_conf_file }}" }
-    - { src: "{{ ceph_local_files_dest_path.glance_keyring }}", dest: "{{ ceph_keyring_file_path.cinder_glance }}" }
     - { src: "{{ ceph_local_files_dest_path.cinder_backup_keyring }}", dest: "{{ ceph_keyring_file_path.cinder_backup }}" }
-  delegate_to: "{{ groups['compute'] }}"
+  when: "'compute' in group_names"

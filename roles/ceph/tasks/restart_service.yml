@@ -4,18 +4,21 @@
     name: openstack-glance-api
     state: restarted
     enabled: true
-  when: "'controller' in group_names"
+  when: "'glance_servers' in group_names"
+  tags: restart_glance_api
 
 - name: Restart cinder secheduler
   ansible.builtin.systemd:
     name: openstack-cinder-scheduler
     state: restarted
     enabled: true
-  when: "'controller' in group_names"
+  when: "'cinder_servers' in group_names"
+  tags: restart_cinder_scheduler
 
-- name: Restart cinder-volume
+- name: Restart nova services
   ansible.builtin.systemd:
-    name: openstack-cinder-volume
+    name: openstack-nova-compute
     state: restarted
     enabled: true
   when: "'compute' in group_names"
+  tags: restart_nova_compute
