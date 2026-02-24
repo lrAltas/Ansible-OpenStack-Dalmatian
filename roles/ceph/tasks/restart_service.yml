@@ -15,6 +15,17 @@
   when: "'cinder_servers' in group_names"
   tags: restart_cinder_scheduler
 
+- name: Restart Cinder Volume and Cinder api service on controller node
+  ansible.builtin.systemd:
+    name: "{{ item }}"
+    state: restarted
+    enabled: true
+  loop:
+    - openstack-cinder-volume
+    - openstack-cinder-api
+  when: "'controller' in group_names"
+  tags: restart_cinder_services
+
 - name: Restart nova services
   ansible.builtin.systemd:
     name: openstack-nova-compute

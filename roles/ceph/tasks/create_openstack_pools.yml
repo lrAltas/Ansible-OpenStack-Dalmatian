@@ -10,3 +10,9 @@
         state: present
       loop: "{{ ceph_openstack_pools }}"
       tags: create_openstack_pools
+
+- name: 显式启用 rbd application
+  command: ceph osd pool application enable {{ item.name }} rbd
+  changed_when: false
+  failed_when: false
+  loop: "{{ ceph_openstack_pools }}"

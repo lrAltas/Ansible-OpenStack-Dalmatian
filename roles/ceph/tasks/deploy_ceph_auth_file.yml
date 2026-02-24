@@ -30,3 +30,35 @@
     - { src: "{{ ceph_local_files_dest_path.ceph_conf }}", dest: "{{ ceph_conf_file }}" }
     - { src: "{{ ceph_local_files_dest_path.cinder_backup_keyring }}", dest: "{{ ceph_keyring_file_path.cinder_backup }}" }
   when: "'compute' in group_names"
+
+- name: Change ownership of Ceph auth keys for OpenStack services for compute nodes
+  ansible.builtin.file:
+    path: "{{ ceph_keyring_file_path.cinder_glance }}"
+    owner: glance
+    group: glance
+    mode: '0640'
+  when: "'controller' in group_names"
+
+- name: Change ownership of Ceph auth keys for OpenStack services for cinder service
+  ansible.builtin.file:
+    path: "{{ ceph_keyring_file_path.cinder }}"
+    owner: cinder
+    group: cinder
+    mode: '0640'
+  when: "'controller' in group_names or 'compute' in group_names"
+
+- name: Change ownership of Ceph auth keys for OpenStack services for cinder backup service
+  ansible.builtin.file:
+    path: "{{ ceph_keyring_file_path.cinder_backup }}"
+    owner: cinder
+    group: cinder
+    mode: '0640'
+  when: "'compute' in group_names"
+
+- name: Change ownership of Ceph conf file for OpenStack services on controller and compute nodes
+  ansible.builtin.file:
+    path: "{{ ceph_conf_file }}"
+    owner: root
+    group: root
+    mode: '0644'
+  when: "'controller' in group_names"

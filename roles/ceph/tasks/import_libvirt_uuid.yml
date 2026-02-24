@@ -24,6 +24,7 @@
 
     - name: Import Keys
       ansible.builtin.shell: >-
+        set -o pipefail;
         virsh secret-set-value --secret {{ ceph_libvirt_uuid }}
         --base64 $(cat {{ ceph_keyring_file_path.cinder }} | grep key | awk -F ' ' '{print $3}')
       args:
