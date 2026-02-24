@@ -2,103 +2,112 @@
 
 > [!WARNING]
 > **重要声明**
-> 这里是新问云图工作室的 OpenStack Dalmatian (2024.2) 版本学习测试部署仓库的介绍文档，仅供学习和测试使用，旨在快速部署一个可用的 OpenStack 私有云示例平台。
->
-> **严正声明**：本仓库仅提供快速部署脚本的基本框架，并非万能脚本。实际部署有两种选择：
-> 1. 严格按照示例小幅度修改后直接使用；
-> 2. 根据实际情况自行修改、调试、测试，直至成功。
-> 作者仅提供基础示例框架，不保证适用于所有环境。
+> 这里是新问云图工作室的 OpenStack Dalmatian (2024.2) 版本学习测试部署仓库，仅供学习和测试使用。
+> 本仓库提供自动化部署框架，实际使用时**必须根据你的网络环境进行调整**。作者仅提供基础示例，不承担生产环境使用风险。
 
 ## 文档版本
 
-| 版本号 | 修订日期   | 编辑人   | 修改内容                                                                                     | 仓库链接                                                         |
-|--------|------------|----------|----------------------------------------------------------------------------------------------|------------------------------------------------------------------|
-| 1.0    | 2025/08/25 | LRAltas  | 完成主要 Playbook 框架，测试基础 Roles（13 个）在示例架构（1C2Co）上的运行情况               | https://github.com/lrAltas/Ansible-OpenStack-Dalmatian          |
-| 1.1    | 2025/11/10 | LRAltas  | 升级至 2024.02（Dalmatian）版本，重构项目，加强格式规范性，增强单个模块执行的幂等性         | https://github.com/lrAltas/Ansible-OpenStack-Dalmatian          |
-| 2.0    | 2026/02/12 | LRAltas  | 完成基本部署功能完善（包括 Cinder 修复、Dashboard 问题修复、Placement 配置优化）；添加 policy 文件复制逻辑；格式全面规范化；支持卷服务基本功能 | https://github.com/lrAltas/Ansible-OpenStack-Dalmatian          |
+| 版本号 | 修订日期   | 编辑人   | 修改内容                                           | 仓库链接 |
+|--------|------------|----------|----------------------------------------------------|----------|
+| 1.0    | 2025/08/25 | LRAltas  | 完成主要 Playbook 框架，测试基础 Roles             | [链接](https://github.com/lrAltas/Ansible-OpenStack-Dalmatian) |
+| 1.1    | 2025/11/10 | LRAltas  | 升级至 Dalmatian 版本，重构项目，加强幂等性       | [链接](https://github.com/lrAltas/Ansible-OpenStack-Dalmatian) |
+| 2.0    | 2026/02/12 | LRAltas  | 完善 Cinder、Dashboard、Placement 等功能          | [链接](https://github.com/lrAltas/Ansible-OpenStack-Dalmatian) |
+| 2.3    | 2026/02/24 | LRAltas  | 实时更新 roles 目录列表；完成 Ceph 对接；优化三步部署文档 | [链接](https://github.com/lrAltas/Ansible-OpenStack-Dalmatian) |
 
-### 编辑说明
-- **版本号规则**：主版本号.次版本号，主版本用于大版本升级，次版本用于迭代优化或修复。
-- **修订日期**：统一为 `YYYY/MM/DD` 格式。
-- **编辑人**：记录修改人。
-- **修改内容**：简要描述核心变更。
+## 已完成角色列表（实时读取仓库 roles/ 目录）
 
-后续可根据需要扩展表格字段（如“关联 commit”等）。
+- [x] env_init（环境初始化）
+- [x] db_install（数据库部署）
+- [x] memcache（分布式内存缓存）
+- [x] rabbitmq（消息队列）
+- [x] keystone（认证服务）
+- [x] glance（镜像服务）
+- [x] placement（资源放置服务）
+- [x] nova（计算服务）
+- [x] neutron（网络服务）
+- [x] dashboard（旧版仪表盘，已修复）
+- [x] skyline（新一代仪表盘）
+- [x] cinder（卷服务，已基本可用）
+- [x] **ceph**（Ceph 对接 Role，已完全完成，可对接 Ceph RBD 后端）
+- [x] dns_server（DNS 服务）
+- [x] ntp_server（NTP 服务）
 
-## 仓库简介
+**Ceph 集群部署** 已独立到另一个仓库：
+**[ansible-ceph-reef](https://github.com/lrAltas/ansible-ceph-reef)**（基于 cephadm 一键部署）。
 
-本仓库基于 Ansible Roles 实现，目前已完成以下模块的编写与测试：
+截至 2026/02/24，**OpenStack 全栈 + Ceph RBD 后端完整对接** 已实现，功能稳定可用。
 
-- [x] init_env（环境初始化）
-- [x] db_server（数据库部署）
-- [x] Memcache（分布式内存缓存）
-- [x] RabbitMQ（消息队列）
-- [x] Keystone（认证服务）
-- [x] Glance（镜像服务）
-- [x] Placement（资源放置服务）
-- [x] Nova（计算服务）
-- [x] Neutron（网络服务）
-- [x] Dashboard（旧版仪表盘，已修复原有问题）
-- [x] Skyline（新一代仪表盘）
-- [x] Cinder（卷服务，已基本可用）
-- [ ] Ceph（后端存储，部分支持/测试中）
+## 部署架构（推荐示例二：双 VLAN）
 
-仓库由新问云图工作室维护，主要用于内部成员学习、测试和体验 OpenStack 开源云平台。截至 2026/02/12，脚本已在固定架构下实现完整自动化部署，平台基本功能稳定（虚拟机创建/管理、快照、网络、浮动 IP、卷挂载等）。仓库持续更新中，最近重点完善了部署稳定性与兼容性。
+- **管理网络**：10.1.10.0/24
+- **浮动 IP 网络**：10.1.20.0/24
 
-## 部署架构介绍
+## 主机规划表（请严格按此修改 inventory）
 
-### 示例架构一（单网段 + 虚拟网关）
+### 1. OpenStack 节点
 
-![示例架构一：1 Controller + 2 Compute + 虚拟网关](https://cdn.nlark.com/yuque/0/2026/png/44875752/1768541136779-ee36b856-703d-43a1-b6c2-61a9d41cc0ac.png)
+| FQDN                        | Mgnt NIC | Mgnt IP / Netmask / Gateway         | Floating IP / Netmask / Gateway      | Role       |
+|-----------------------------|----------|-------------------------------------|--------------------------------------|------------|
+| controller.openstack.suying | ens160   | 10.1.10.10/255.255.255.0/10.1.10.1 | None/255.255.255.0/10.1.20.1         | controller |
+| compute01.openstack.suying  | ens160   | 10.1.10.11/255.255.255.0/10.1.10.1 | None/255.255.255.0/10.1.20.1         | compute    |
+| compute02.openstack.suying  | ens160   | 10.1.10.12/255.255.255.0/10.1.10.1 | None/255.255.255.0/10.1.20.1         | compute    |
+| dns.openstack.suying        | ens160   | 10.1.10.2/255.255.255.0/10.1.10.1  | -                                    | DNS_NTP    |
 
-网络划分：
-1. **管理网络**：`192.168.1.0/24`
-2. **业务网络**：`10.1.1.0/24`（建议该网段不放置其他设备，避免 IP 冲突）
+### 2. Ceph 集群节点（ansible-ceph-reef 部署）
 
-### 示例架构二（双 VLAN 真实网络环境）
+| FQDN                        | Mgnt NIC | Mgnt IP / Netmask / Gateway         | Role    |
+|-----------------------------|----------|-------------------------------------|---------|
+| cephadm01.openstack.suying  | ens160   | 10.1.10.50/255.255.255.0/10.1.10.1 | cephadm |
+| cephadm02.openstack.suying  | ens160   | 10.1.10.51/255.255.255.0/10.1.10.1 | cephadm |
+| cephadm03.openstack.suying  | ens160   | 10.1.10.52/255.255.255.0/10.1.10.1 | cephadm |
 
-![示例架构二：真实网络环境下的完整部署](https://cdn.nlark.com/yuque/0/2026/png/44875752/1768541140827-2bb60815-fba9-49a3-9400-b0e52b257ae0.png)
+## 使用方法（严格三步走）
 
-![示例架构二简化网络规划](https://cdn.nlark.com/yuque/0/2026/png/44875752/1768541144818-01d557f6-11a8-4f7a-8329-bca89872b48b.png)
+### 步骤 1：准备 OpenStack 部署环境
+```bash
+git clone https://github.com/lrAltas/Ansible-OpenStack-Dalmatian.git
+cd Ansible-OpenStack-Dalmatian
 
-网络划分：
-1. **管理网络**：`10.1.10.0/24`
-2. **浮动 IP 网络**：`10.1.20.0/24`
+vim ansible.cfg      # 配置 inventory 路径、用户等
+vim inventory        # 按上面主机规划表填写
+```
 
-> [!NOTE]
-> **Tips**：无需完全复制此架构。本质只需 Controller + Skyline/Dashboard + Nova 节点（可选 Cinder）。示例架构二是理想状态，可作为参考自行部署。
+### 步骤 2：修改 Neutron 网卡配置（必须）
+```bash
+vim roles/neutron/vars/main.yml
+```
+把 `nic_name` 改成你实际的物理网卡名称：
+```yaml
+neutron_ovs_conf:
+  nic_name: "ens160"     # ←←← 改成你的实际网卡（常见 ens160 或 enp2s0）
+```
 
-## 剧本使用样例
+### 步骤 3：按顺序执行部署
+1. **部署 OpenStack 核心服务**
+   ```bash
+   ansible-playbook -i inventory allinone_test.yml
+   ```
 
-> [!WARNING]
-> 当前仓库主要测试于 **CentOS 9 Stream**，但为解决 Skyline SDK 兼容性问题，**推荐使用 Ubuntu 24.04 LTS**（已验证稳定）。
+2. **部署 Ceph 集群**
+   ```bash
+   git clone https://github.com/lrAltas/ansible-ceph-reef.git
+   cd ansible-ceph-reef
+   # 按照该仓库 README 执行 cephadm 部署（推荐 3 节点）
+   ```
 
-### 主机示例（请根据实际情况修改）
+3. **执行 Ceph 对接 OpenStack**
+   ```bash
+   cd ../Ansible-OpenStack-Dalmatian
+   ansible-playbook -i inventory ceph_test.yml
+   ```
 
-| Hosts       | FQDN                          | NIC1/IP                       | NIC2/IP                          |
-|-------------|-------------------------------|-------------------------------|----------------------------------|
-| controller  | controller.openstack.suying   | ens33: 10.1.10.200（静态）    | ens34: 10.1.20.0/24（动态）      |
-| compute01   | compute01.openstack.suying    | ens33: 10.1.10.201（静态）    | ens34: 10.1.20.0/24（动态）      |
-| compute02   | compute02.openstack.suying    | ens33: 10.1.10.202（静态）    | ens34: 10.1.20.0/24（动态）      |
-| skyline     | skyline.openstack.suying      | ens33: 10.1.10.199（静态）    | 无                               |
-| Ansible-Controller | -                        | ens33: 10.1.10.198（静态）    | -                                |
+**部署完成后访问**：
+- Skyline 新仪表盘：`http://<controller_ip>:9999`
+- Horizon 旧仪表盘：`http://<controller_ip>/horizon`
 
-### 前置要求
-1. 所有节点的管理网段 IP 必须为**静态**，互不冲突，可相互通信并能访问外网。
-2. Ansible-Controller 对其他节点配置 SSH 免密登录。
+**强烈推荐操作系统**：Ubuntu 24.04 LTS（Skyline SDK 兼容性最佳）
 
-### 操作步骤（在 Ansible-Controller 节点执行）
-（步骤同之前优化版，保持不变：git clone → 修改 ansible.cfg/inventory → 修改 Neutron OVS 配置 → 执行 allinone.yml）
+---
 
-部署完成后，浏览器访问 Skyline（`:9999`）或 Dashboard（默认 `:80/horizon`）即可。
-
-## 当前存在的问题与解决方案
-
-### Skyline 仪表盘与 OpenStack SDK 版本冲突
-（问题描述同旧版）
-
-#### 推荐解决方案
-- **首选**：切换到 **Ubuntu 24.04 LTS**（自带 Python 3.12，已验证解决兼容性问题，支持完整 Skyline 功能）。
-- **备选**：使用传统 Dashboard（现已修复，原有问题已解决，稳定可靠）。
-
-如果 Ceph 完全集成后有新问题，会继续更新。
+**仓库持续维护中**，欢迎提交 Issue / PR，一起把项目做得更好！🚀
+新问云图工作室 —— 让 OpenStack 部署更简单！
