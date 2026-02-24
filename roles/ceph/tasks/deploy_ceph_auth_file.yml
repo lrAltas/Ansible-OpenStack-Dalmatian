@@ -11,7 +11,7 @@
     dest: "{{ item.dest }}"
     owner: root
     group: root
-    mode: '0600'
+    mode: '0640'
   loop:
     - { src: "{{ ceph_local_files_dest_path.cinder_keyring }}", dest: "{{ ceph_keyring_file_path.cinder }}" }
     - { src: "{{ ceph_local_files_dest_path.ceph_conf }}", dest: "{{ ceph_conf_file }}" }
@@ -24,7 +24,7 @@
     dest: "{{ item.dest }}"
     owner: root
     group: root
-    mode: '0600'
+    mode: '0640'
   loop:
     - { src: "{{ ceph_local_files_dest_path.cinder_keyring }}", dest: "{{ ceph_keyring_file_path.cinder }}" }
     - { src: "{{ ceph_local_files_dest_path.ceph_conf }}", dest: "{{ ceph_conf_file }}" }
