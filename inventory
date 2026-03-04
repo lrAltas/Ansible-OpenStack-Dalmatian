@@ -11,50 +11,35 @@ controller.openstack.suying ansible_host=10.1.10.10
 [compute]
 compute01.openstack.suying ansible_host=10.1.10.11
 compute02.openstack.suying ansible_host=10.1.10.12
-
-#[skyline]
-#skyline.openstack.suying ansible_host=10.1.10.203
 [db_servers]
 controller.openstack.suying ansible_host=10.1.10.10
-
 [rabbitmq_servers]
 controller.openstack.suying ansible_host=10.1.10.10
-
 [memcache_servers]
 controller.openstack.suying ansible_host=10.1.10.10
-
 [keystone_servers]
 controller.openstack.suying ansible_host=10.1.10.10
-
 [placement_servers]
 controller.openstack.suying ansible_host=10.1.10.10
-
 [glance_servers]
 controller.openstack.suying ansible_host=10.1.10.10
-
 [cinder_servers]
 controller.openstack.suying ansible_host=10.1.10.10
-
 [cinder_clients]
 compute01.openstack.suying ansible_host=10.1.10.11
 compute02.openstack.suying ansible_host=10.1.10.12
-
 [dns_server]
 dns.openstack.suying ansible_host=10.1.10.2
 [dns_clients]
 controller.openstack.suying ansible_host=10.1.10.10
 compute01.openstack.suying ansible_host=10.1.10.11
 compute02.openstack.suying ansible_host=10.1.10.12
-#skyline.openstack.suying ansible_host=10.1.10.203
-
 [ntp_servers]
 dns.openstack.suying ansible_host=10.1.10.2
 [ntp_clients]
 controller.openstack.suying ansible_host=10.1.10.10
 compute01.openstack.suying ansible_host=10.1.10.11
 compute02.openstack.suying ansible_host=10.1.10.12
-#skyline.openstack.suying ansible_host=10.1.10.203
-
 [ceph_bootstrap]
 cephadm01.openstack.suying
 

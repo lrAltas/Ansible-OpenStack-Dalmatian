@@ -9,6 +9,16 @@
   loop: "{{ ceph_controller_cinder_conf_new_configs }}"
   when: "'controller' in group_names"
 
+- name: Add a new Ceph backend
+  community.general.ini_file:
+    path: "{{  ceph_cinder_conf_file_path }}"
+    section: "{{ item.section }}"
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+    mode: '0644'
+  loop: "{{ ceph_controller_node_cinder_add_ceph_backends }}"
+  when: "'controller' in group_names"
+
 - name: Add ceph configuration to cinder.conf on compute nodes
   community.general.ini_file:
     path: "{{ ceph_cinder_conf_file_path }}"

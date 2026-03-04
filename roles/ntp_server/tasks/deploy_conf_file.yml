@@ -21,7 +21,7 @@
 
 - name: Set timedateconf to use NTP
   ansible.builtin.command:
-    cmd: timedatectl set-ntp true
+    cmd: timedatectl set-ntp yes
   changed_when: false
   tags:
     - set_system_use_ntp_sync

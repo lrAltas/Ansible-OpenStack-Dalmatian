@@ -1,5 +1,5 @@
 [client.cinder-backup]
-	key = AQCvRZ1pAAAAABAAtAok3FAk4gpu2DgRW/YZxQ==
+	key = AQAzS6RpAAAAABAA4ufMv8GBPMLRqi79S0Zpqg==
 	caps mgr = "profile rbd pool=backups"
 	caps mon = "profile rbd"
 	caps osd = "profile rbd pool=backups"

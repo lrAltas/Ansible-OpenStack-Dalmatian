@@ -168,3 +168,41 @@ ceph_nova_conf_libvirt_new_configs:
   - option: rbd_secret_uuid
     value: "{{ ceph_libvirt_uuid }}"
     section: libvirt
+
+ceph_controller_node_cinder_add_ceph_backends:
+  - option: volume_driver
+    value: cinder.volume.drivers.rbd.RBDDriver
+    section: ceph
+  - option: rbd_pool
+    value: volumes
+    section: ceph
+  - option: rbd_ceph_conf
+    value: "{{ ceph_conf_file }}"
+    section: ceph
+  - option: rbd_user
+    value: cinder
+    section: ceph
+  - option: rbd_secret_uuid
+    value: "{{ ceph_libvirt_uuid }}"
+    section: ceph
+  - option: rbd_flatten_volume_from_snapshot
+    value: false
+    section: ceph
+  - option: rbd_max_clone_depth
+    value: 5
+    section: ceph
+  - option: rbd_store_chunk_size
+    value: 4
+    section: ceph
+  - option: rados_connect_timeout
+    value: -1
+    section: ceph
+  - option: glance_api_version
+    value: 2
+    section: ceph
+  - option: volume_backend_name
+    value: ceph
+    section: ceph
+  - option: enabled_backends
+    value: ceph
+    section: DEFAULT
