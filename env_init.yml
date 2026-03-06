@@ -1,0 +1,5 @@
+---
+- name: Init env
+  hosts: controller,compute
+  roles:
+    - env_init

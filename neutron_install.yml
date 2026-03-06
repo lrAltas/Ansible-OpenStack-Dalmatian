@@ -1,0 +1,12 @@
+---
+- name: Configure controller
+  hosts: controller
+  serial: 1
+  roles:
+      - neutron
+
+- name: Configure compute
+  serial: 2
+  hosts: compute
+  roles:
+      - neutron

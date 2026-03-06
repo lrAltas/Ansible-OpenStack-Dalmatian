@@ -1,0 +1,11 @@
+- name: Configure controller
+  hosts: controller
+  serial: 1
+  roles:
+      - nova
+
+- name: Configure compute
+  serial: 2
+  hosts: compute
+  roles:
+      - nova

@@ -1,0 +1,4 @@
+- name: Configure controller
+  hosts: controller
+  roles:
+      - glance

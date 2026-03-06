@@ -1,0 +1,5 @@
+---
+- name: Configure controller
+  hosts: controller
+  roles:
+    - placement

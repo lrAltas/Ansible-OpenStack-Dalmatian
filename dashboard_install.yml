@@ -1,0 +1,5 @@
+---
+- name: Deploy dashboard
+  hosts: controller
+  roles:
+    - dashboard

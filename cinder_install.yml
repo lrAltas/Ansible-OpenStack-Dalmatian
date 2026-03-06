@@ -1,0 +1,12 @@
+---
+- name: Configure controller
+  hosts: controller
+  serial: 1
+  roles:
+      - cinder
+
+- name: Configure compute
+  hosts: compute
+  serial: 2
+  roles:
+      - cinder
