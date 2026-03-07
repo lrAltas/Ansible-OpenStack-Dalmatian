@@ -1,0 +1,26 @@
+---
+- name: 删除所有原有 .repo 文件（彻底清空旧源，只保留我们新插入的）
+  when: ansible_os_family == 'RedHat'
+  block:
+    - name: 查找所有旧的 .repo 文件
+      ansible.builtin.find:
+        paths: /etc/yum.repos.d/
+        patterns: "*.repo"
+      register: configure_repository_old_repos
+
+    - name: 删除所有查找到的旧 .repo 文件
+      ansible.builtin.file:
+        path: "{{ item.path }}"
+        state: absent
+      loop: "{{ configure_repository_old_repos.files | default([]) }}"
+
+- name: 第二部分 - 导入自定义本地 YUM 源（批量，只保留新插入的）
+  ansible.builtin.yum_repository:
+    name: "{{ item.name }}"
+    description: "{{ item.description }}"
+    baseurl: "{{ item.baseurl }}"
+    enabled: "{{ item.enabled }}"
+    gpgcheck: "{{ item.gpgcheck }}"
+    state: present
+  loop: "{{ configure_repository_repos | default([]) }}"
+  when: ansible_os_family == 'RedHat'

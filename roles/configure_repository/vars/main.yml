@@ -1,0 +1,60 @@
+# SPDX-License-Identifier: MIT-0
+---
+# vars file for roles/configure_repository
+configure_repository_repos:
+  - name: baseos
+    description: XinWenYunTu Local Repository - BaseOS
+    baseurl: http://10.1.10.10/xw_local_repository/centos/9-stream/BaseOS/x86_64/os/
+    enabled: true
+    gpgcheck: false
+
+  - name: appstream
+    description: XinWenYunTu Local Repository - AppStream
+    baseurl: http://10.1.10.10/xw_local_repository/centos/9-stream/AppStream/x86_64/os/
+    enabled: true
+    gpgcheck: false
+
+  - name: extras
+    description: XinWenYunTu Local Repository - Extras
+    baseurl: http://10.1.10.10/xw_local_repository/centos/9-stream/Extras_Packages/x86_64/os/
+    enabled: true
+    gpgcheck: false
+
+  - name: epel
+    description: XinWenYunTu Local Repository - EPEL
+    baseurl: http://10.1.10.10/xw_local_repository/epel-release/epel/9-stream/x86_64/os/
+    enabled: true
+    gpgcheck: false
+
+  - name: epel-cisco-openh264
+    description: XinWenYunTu Local Repository - epel-cisco-openh264
+    baseurl: http://10.1.10.10/xw_local_repository/epel-release/epel-cisco-openh264/x86_64/os/
+    enabled: true
+    gpgcheck: false
+
+  - name: epel-next
+    description: XinWenYunTu Local Repository - epel-next
+    baseurl: http://10.1.10.10/xw_local_repository/epel-release/epel-next/x86_64/os/
+    enabled: true
+    gpgcheck: false
+
+  - name: openstack-dalmatian
+    description: XinWenYunTu Local Repository - OpenStack Dalmatian
+    baseurl: http://10.1.10.10/xw_local_repository/centos/9-stream/cloud_repository/CentOS-OpenStack-Dalmatian/OpenStack-Dalmatian/x86_64/os/
+    enabled: true
+    gpgcheck: false
+
+  - name: ceph-reef
+    description: XinWenYunTu Local Repository - Ceph Reef
+    baseurl: http://10.1.10.10/xw_local_repository/centos/9-stream/cloud_repository/CentOS-OpenStack-Dalmatian/Ceph-Reef/x86_64/os/
+    enabled: true
+    gpgcheck: false
+
+  - name: nfv-openvswitch
+    description: XinWenYunTu Local Repository - NFV OpenvSwitch
+    baseurl: http://10.1.10.10/xw_local_repository/centos/9-stream/cloud_repository/CentOS-OpenStack-Dalmatian/NFV-OpenvSwitch/x86_64/os/
+    enabled: true
+    gpgcheck: false
+  # ←←← 继续在这里添加你所有的本地源
+  # 字段严格按照你指定的：description、baseurl、enabled、gpgcheck
+  # （name 是仓库唯一ID，必须保留）
