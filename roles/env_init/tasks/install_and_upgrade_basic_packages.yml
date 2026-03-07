@@ -7,6 +7,21 @@
         state: present
       when: ansible_facts['os_family'] == "RedHat"
 
+    - name: 检查本地仓库标记文件是否存在
+      ansible.builtin.stat:
+        path: "{{ env_init_local_repository_mark_file_path }}"
+      register: local_repo_mark
+      when: ansible_os_family == "RedHat"
+
+    # 2. 你的安装任务（已修正）
+    - name: Install OpenStack release package
+      ansible.builtin.dnf:
+        name: "{{ env_init_openstack_release_packages }}"
+        state: present
+      when:
+        - ansible_os_family == "RedHat"
+        - not local_repo_mark.stat.exists 
+
     - name: Upgrade python-openstacksdk package
       ansible.builtin.pip:
         name: openstacksdk==4.5.0

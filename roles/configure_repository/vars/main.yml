@@ -1,6 +1,9 @@
 # SPDX-License-Identifier: MIT-0
 ---
 # vars file for roles/configure_repository
+configure_repository_mark_dir_path: /root/.mark
+configure_repository_mark_file_path: "{{ configure_repository_mark_dir_path }}/configure_repository_done.mark"
+
 configure_repository_repos:
   - name: baseos
     description: XinWenYunTu Local Repository - BaseOS
@@ -22,19 +25,19 @@ configure_repository_repos:
 
   - name: epel
     description: XinWenYunTu Local Repository - EPEL
-    baseurl: http://10.1.10.10/xw_local_repository/epel-release/epel/9-stream/x86_64/os/
+    baseurl: http://10.1.10.10/xw_local_repository/centos/9-stream/epel-release/epel/x86_64/os/
     enabled: true
     gpgcheck: false
 
   - name: epel-cisco-openh264
     description: XinWenYunTu Local Repository - epel-cisco-openh264
-    baseurl: http://10.1.10.10/xw_local_repository/epel-release/epel-cisco-openh264/x86_64/os/
+    baseurl: http://10.1.10.10/xw_local_repository/centos/9-stream/epel-release/epel-cisco-openh264/x86_64/os/
     enabled: true
     gpgcheck: false
 
   - name: epel-next
     description: XinWenYunTu Local Repository - epel-next
-    baseurl: http://10.1.10.10/xw_local_repository/epel-release/epel-next/x86_64/os/
+    baseurl: http://10.1.10.10/xw_local_repository/centos/9-stream/epel-release/epel-next/x86_64/os/
     enabled: true
     gpgcheck: false
 

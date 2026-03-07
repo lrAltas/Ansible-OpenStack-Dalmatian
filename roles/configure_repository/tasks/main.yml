@@ -1,6 +1,12 @@
 # SPDX-License-Identifier: MIT-0
 ---
 # tasks file for roles/configure_repository
+- name: Ensure Mark Directory Exists
+  ansible.builtin.file:
+    path: "{{ configure_repository_mark_dir_path }}"
+    state: directory
+    mode: '0755'
+
 - name: Import the backup repository task
   ansible.builtin.import_tasks: bak_repository.yml
   tags: backup_repository
@@ -8,3 +14,9 @@
 - name: Import the create new repository task
   ansible.builtin.import_tasks: create_new_repo.yml
   tags: create_new_repository
+
+- name: Create mark file to indicate that the repository has been configured
+  ansible.builtin.file:
+    path: "{{ configure_repository_mark_file_path }}"
+    state: touch
+    mode: '0644'

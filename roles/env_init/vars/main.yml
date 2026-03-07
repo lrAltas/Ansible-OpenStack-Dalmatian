@@ -13,8 +13,9 @@ env_init_packages:
   - git
   - wget
   - epel-release
-  - centos-release-openstack-dalmatian
 
+env_init_local_repository_mark_file_path: "{{ env_init_mark_dir_path }}/configure_repository_done.mark"
+env_init_openstack_release_packages: centos-release-openstack-dalmatian
 env_init_openstack_client_package: python3-openstackclient
 
 env_init_ntp_template_src: chrony.conf.j2
