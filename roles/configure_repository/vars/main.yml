@@ -65,6 +65,30 @@ configure_repository_repos:
     enabled: true
     gpgcheck: false
 
+  - name: modern-erlang
+    description: XinWenYunTu Local Repository - Modern Erlang
+    baseurl: http://10.1.10.10/xw_local_repository/centos/9-stream/RabbitMQ/x86_64/os/modern-erlang/
+    enabled: true
+    gpgcheck: false
+
+  - name: modern-erlang-noarch
+    description: XinWenYunTu Local Repository - Modern Erlang Noarch
+    baseurl: http://10.1.10.10/xw_local_repository/centos/9-stream/RabbitMQ/x86_64/os/modern-erlang-noarch/
+    enabled: true
+    gpgcheck: false
+
+  - name: rabbitmq-el9
+    description: XinWenYunTu Local Repository - RabbitMQ EL9
+    baseurl: http://10.1.10.10/xw_local_repository/centos/9-stream/RabbitMQ/x86_64/os/rabbitmq-el9/
+    enabled: true
+    gpgcheck: false
+
+  - name: rabbitmq-el9-noarch
+    description: XinWenYunTu Local Repository - RabbitMQ EL9 Noarch
+    baseurl: http://10.1.10.10/xw_local_repository/centos/9-stream/RabbitMQ/x86_64/os/rabbitmq-el9-noarch/
+    enabled: true
+    gpgcheck: false
+
   # ←←← 继续在这里添加你所有的本地源
   # 字段严格按照你指定的：description、baseurl、enabled、gpgcheck
   # （name 是仓库唯一ID，必须保留）
