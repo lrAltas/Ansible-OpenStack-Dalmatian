@@ -1,5 +1,11 @@
 ---
+- name: 检查本地仓库标记文件是否存在
+  ansible.builtin.stat:
+    path: "{{ rabbitmq_local_repository_mark_file_path }}"
+  register: rabbitmq_local_repo_mark
+
 - name: Disable CentOS 9 Stream‘s RabbitMQ Repository
+  when: not rabbitmq_local_repo_mark.stat.exists
   block:
     - name: Disable CentOS 9 Stream‘s RabbitMQ Repository
       ansible.builtin.command:

@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MIT-0
 ---
 # vars file for roles/configure_repository
-configure_repository_mark_dir_path: /root/.mark
+configure_repository_mark_dir_path: /root/.marks
 configure_repository_mark_file_path: "{{ configure_repository_mark_dir_path }}/configure_repository_done.mark"
 
 configure_repository_repos:
@@ -58,6 +58,13 @@ configure_repository_repos:
     baseurl: http://10.1.10.10/xw_local_repository/centos/9-stream/cloud_repository/CentOS-OpenStack-Dalmatian/NFV-OpenvSwitch/x86_64/os/
     enabled: true
     gpgcheck: false
+
+  - name: crb
+    description: XinWenYunTu Local Repository - CRB Repository
+    baseurl: http://10.1.10.10/xw_local_repository/centos/9-stream/CRB/x86_64/os/
+    enabled: true
+    gpgcheck: false
+
   # ←←← 继续在这里添加你所有的本地源
   # 字段严格按照你指定的：description、baseurl、enabled、gpgcheck
   # （name 是仓库唯一ID，必须保留）

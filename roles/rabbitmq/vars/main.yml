@@ -11,6 +11,8 @@ rabbitmq_packages:
 rabbitmq_repo_template_path: templates/rabbitmq_latest_CentOS9.repo.j2
 rabbitmq_repo_path: /etc/yum.repos.d/rabbitmq_latest_CentOS9.repo
 
+rabbitmq_local_repository_mark_file_path: "{{ rabbitmq_mark_dir_path }}/configure_repository_done.mark"
+
 # 你可以根据你的实际情况来更改密码，如果仅为展示环境，那么密码可以设置为000000不用管他
 # The password can be changed according to your needs. If it is only for demonstration purposes, the password can be set to 000000 without worrying about it
 rabbitmq_openstack_rabbitmq_user_password: "000000"
