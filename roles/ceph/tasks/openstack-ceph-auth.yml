@@ -54,12 +54,29 @@
       run_once: true
       register: ceph_glance_key
 
+    - name: Create Ceph key for client.nova
+      ceph.automation.ceph_key:
+        name: client.nova
+        state: present
+        caps:
+          mon: "profile rbd"
+          osd: "profile rbd pool=volumes, profile rbd pool=images, profile rbd pool=vms, profile rbd pool=backups"
+          mgr: "profile rbd"
+        dest: "{{ ceph_keyring_file_path.nova }}"
+        owner: nova
+        group: nova
+        mode: '0600'
+      when: "'ceph_bootstrap' in group_names"
+      run_once: true
+      register: ceph_nova_key
+
     - name: Verify all keys created
       ansible.builtin.command: ceph auth get client.{{ item }}
       loop:
         - cinder
         - cinder-backup
         - glance
+        - nova
       register: ceph_auth_get
       changed_when: false
       when: "'ceph_bootstrap' in group_names"
@@ -81,6 +98,8 @@
       dest: "{{ ceph_local_files_dest_path.cinder_backup_keyring }}"
     - src: "{{ ceph_keyring_file_path.cinder_glance }}"
       dest: "{{ ceph_local_files_dest_path.glance_keyring }}"
+    - src: "{{ ceph_keyring_file_path.cinder_nova }}"
+      dest: "{{ ceph_local_files_dest_path.nova_keyring }}"
     - src: "{{ ceph_conf_file }}"
       dest: "{{ ceph_local_files_dest_path.ceph_conf }}"
   when: "'ceph_bootstrap' in group_names"

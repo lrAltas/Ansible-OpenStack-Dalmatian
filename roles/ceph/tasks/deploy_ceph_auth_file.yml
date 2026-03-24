@@ -62,3 +62,11 @@
     group: root
     mode: '0644'
   when: "'controller' in group_names"
+
+- name: Change ownership of Ceph auth keys for OpenStack services for nova service
+  ansible.builtin.file:
+    path: "{{ ceph_keyring_file_path.nova }}"
+    owner: nova
+    group: nova
+    mode: '0640'
+  when: "'controller' in group_names or 'compute' in group_names"

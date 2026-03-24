@@ -7,6 +7,8 @@ ceph_mark_file_path:
   import_libvirt_secret_file: "{{ ceph_mark_dir_path }}/import_libvirt_secret_file.mark"
   import_libvirt_key_file: "{{ ceph_mark_dir_path }}/import_libvirt_key_file.mark"
 
+ceph_local_repository_mark_file_path: "{{ ceph_mark_dir_path }}/configure_repository_done.mark"
+
 ceph_openstack_pools:
   - name: "volumes"
     pg_num: 128
@@ -26,6 +28,7 @@ ceph_keyring_file_path:
   cinder: "{{ ceph_keyring_dir }}/ceph.client.cinder.keyring"
   cinder_backup: "{{ ceph_keyring_dir }}/ceph.client.cinder-backup.keyring"
   cinder_glance: "{{ ceph_keyring_dir }}/ceph.client.glance.keyring"
+  cinder_nova: "{{ ceph_keyring_dir }}/ceph.client.nova.keyring"
 
 ceph_conf_file: /etc/ceph/ceph.conf
 
@@ -35,6 +38,7 @@ ceph_local_files_dest_path:
   cinder_keyring: "{{ ceph_local_files_dest_dir_path }}/ceph.client.cinder.keyring"
   cinder_backup_keyring: "{{ ceph_local_files_dest_dir_path }}/ceph.client.cinder-backup.keyring"
   glance_keyring: "{{ ceph_local_files_dest_dir_path }}/ceph.client.glance.keyring"
+  nova_keyring: "{{ ceph_local_files_dest_dir_path }}/ceph.client.nova.keyring"
 
 ceph_libvirt_uuid: b40f89fb-77d5-4f68-84fd-f3129abc8002
 
@@ -163,7 +167,7 @@ ceph_nova_conf_libvirt_new_configs:
     value: "{{ ceph_conf_file }}"
     section: libvirt
   - option: rbd_user
-    value: cinder
+    value: nova
     section: libvirt
   - option: rbd_secret_uuid
     value: "{{ ceph_libvirt_uuid }}"

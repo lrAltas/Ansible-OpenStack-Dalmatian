@@ -1,10 +1,16 @@
 ---
 - name: Install Ceph Packages
   block:
+    - name: 检查本地仓库标记文件是否存在
+      ansible.builtin.stat:
+        path: "{{ ceph_local_repository_mark_file_path }}"
+      register: ceph_local_repo_mark
+
     - name: Install Ceph packages
       ansible.builtin.dnf:
         name: "{{ ceph_release_packages }}"
         state: present
+      when: not ceph_local_repo_mark.stat.exists
 
     - name: Install Ceph common packages
       ansible.builtin.dnf:
