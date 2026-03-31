@@ -62,9 +62,9 @@
           mon: "profile rbd"
           osd: "profile rbd pool=volumes, profile rbd pool=images, profile rbd pool=vms, profile rbd pool=backups"
           mgr: "profile rbd"
-        dest: "{{ ceph_keyring_file_path.nova }}"
-        owner: nova
-        group: nova
+        dest: "{{ ceph_keyring_file_path.cinder_nova }}"
+        owner: root
+        group: root
         mode: '0600'
       when: "'ceph_bootstrap' in group_names"
       run_once: true
