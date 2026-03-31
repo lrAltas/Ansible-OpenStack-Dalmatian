@@ -11,11 +11,13 @@
     dest: "{{ item.dest }}"
     owner: root
     group: root
-    mode: '0640'
+    mode: '0644'
   loop:
     - { src: "{{ ceph_local_files_dest_path.cinder_keyring }}", dest: "{{ ceph_keyring_file_path.cinder }}" }
     - { src: "{{ ceph_local_files_dest_path.ceph_conf }}", dest: "{{ ceph_conf_file }}" }
     - { src: "{{ ceph_local_files_dest_path.glance_keyring }}", dest: "{{ ceph_keyring_file_path.cinder_glance }}" }
+    - { src: "{{ ceph_local_files_dest_path.cinder_backup_keyring }}", dest: "{{ ceph_keyring_file_path.cinder_backup }}" }
+    - { src: "{{ ceph_local_files_dest_path.nova_keyring }}", dest: "{{ ceph_keyring_file_path.cinder_nova }}" }
   when: "'controller' in group_names"
 
 - name: Deploy Ceph auth keys for OpenStack services for compute nodes
@@ -24,11 +26,12 @@
     dest: "{{ item.dest }}"
     owner: root
     group: root
-    mode: '0640'
+    mode: '0644'
   loop:
     - { src: "{{ ceph_local_files_dest_path.cinder_keyring }}", dest: "{{ ceph_keyring_file_path.cinder }}" }
     - { src: "{{ ceph_local_files_dest_path.ceph_conf }}", dest: "{{ ceph_conf_file }}" }
     - { src: "{{ ceph_local_files_dest_path.cinder_backup_keyring }}", dest: "{{ ceph_keyring_file_path.cinder_backup }}" }
+    - { src: "{{ ceph_local_files_dest_path.nova_keyring }}", dest: "{{ ceph_keyring_file_path.cinder_nova }}" }
   when: "'compute' in group_names"
 
 - name: Change ownership of Ceph auth keys for OpenStack services for compute nodes
@@ -36,7 +39,7 @@
     path: "{{ ceph_keyring_file_path.cinder_glance }}"
     owner: glance
     group: glance
-    mode: '0640'
+    mode: '0644'
   when: "'controller' in group_names"
 
 - name: Change ownership of Ceph auth keys for OpenStack services for cinder service
@@ -44,7 +47,7 @@
     path: "{{ ceph_keyring_file_path.cinder }}"
     owner: cinder
     group: cinder
-    mode: '0640'
+    mode: '0644'
   when: "'controller' in group_names or 'compute' in group_names"
 
 - name: Change ownership of Ceph auth keys for OpenStack services for cinder backup service
@@ -52,7 +55,7 @@
     path: "{{ ceph_keyring_file_path.cinder_backup }}"
     owner: cinder
     group: cinder
-    mode: '0640'
+    mode: '0644'
   when: "'compute' in group_names"
 
 - name: Change ownership of Ceph conf file for OpenStack services on controller and compute nodes
@@ -65,8 +68,8 @@
 
 - name: Change ownership of Ceph auth keys for OpenStack services for nova service
   ansible.builtin.file:
-    path: "{{ ceph_keyring_file_path.nova }}"
+    path: "{{ ceph_keyring_file_path.cinder_nova }}"
     owner: nova
     group: nova
-    mode: '0640'
+    mode: '0644'
   when: "'controller' in group_names or 'compute' in group_names"
