@@ -1,0 +1,16 @@
+---
+- name: Gather facts (获取短主机名和 ansible_host)
+  ansible.builtin.setup:
+    gather_subset: min
+
+- name: Add IP + short hostname mapping to /etc/hosts（仅尾部追加这一行）
+  ansible.builtin.lineinfile:
+    path: /etc/hosts
+    regexp: '^{{ ansible_host }}\s+{{ ansible_hostname }}(\s|$)'   # 防止重复
+    line: "{{ ansible_host }} {{ ansible_hostname }}"              # 示例：10.1.10.50 controller
+    state: present
+    insertafter: EOF                                               # 追加到文件最末尾
+    owner: root
+    group: root
+    mode: '0644'
+  when: ansible_hostname != inventory_hostname                    # 安全保险

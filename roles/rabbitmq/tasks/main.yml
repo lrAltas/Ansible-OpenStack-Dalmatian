@@ -45,6 +45,13 @@
 # 2025-10-22 01:29:50.061 4991 ERROR nova
 # 解决方法也很简单（？）从RabbitMQ官方下载最新版的RabbitMQ即可，应该是4.x版本的样子
 
+- name: Insert IP and Short Hostname Mapping into /etc/hosts
+  ansible.builtin.import_tasks: insert_rabbitmq_short_hostname.yml
+  tags:
+    - install
+    - configure_hosts
+  when: "'rabbitmq_servers' in group_names"
+
 - name: Configure RabbitMQ Repository and GPG Keys
   ansible.builtin.import_tasks: configure_repository.yml
   tags:
