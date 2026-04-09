@@ -20,18 +20,27 @@
 
 - name: Configure nic and add OVS bridge
   block:
-    - name: Dsiable IPV4 on {{ neutron_ovs_conf.nic_name }}
+    # 第一步：先清空所有可能冲突的 IPv4 配置（尤其是 dns4）
+    - name: Clear IPv4 DNS and addresses on {{ neutron_ovs_conf.nic_name }}
       community.general.nmcli:
         conn_name: "{{ neutron_ovs_conf.nic_name }}"
+        ifname: "{{ neutron_ovs_conf.nic_name }}"
         type: ethernet
-        method4: disabled
+        dns4: []                  # 清空 DNS（关键！）
+        dns4_ignore_auto: true
+        gw4: ""                   # 清空网关
+        # addresses 不需要显式清空，method 改动时会自动处理
         state: present
 
-    - name: Ingore IPV6 on {{ neutron_ovs_conf.nic_name }}
+    # 第二步：再禁用 IPv4 + 忽略 IPv6
+    - name: Disable IPv4 and ignore IPv6 on {{ neutron_ovs_conf.nic_name }}
       community.general.nmcli:
         conn_name: "{{ neutron_ovs_conf.nic_name }}"
+        ifname: "{{ neutron_ovs_conf.nic_name }}"
         type: ethernet
+        method4: disabled         # 现在可以安全设置了
         method6: ignore
+        autoconnect: true
         state: present
 
 - name: Add OVS bridge
