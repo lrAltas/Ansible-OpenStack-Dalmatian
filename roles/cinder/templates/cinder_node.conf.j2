@@ -16,11 +16,3 @@ user_domain_name = default
 project_name = service
 username = cinder
 password = {{ cinder_openstack_service_password.cinder }}
-[lvm]
-volume_driver = cinder.volume.drivers.lvm.LVMVolumeDriver
-volume_group = cinder-volumes
-target_protocol = iscsi
-target_helper = targetcli
-volume_backend_name = lvm
-[oslo_concurrency]
-lock_path = /var/lib/cinder/tmp
