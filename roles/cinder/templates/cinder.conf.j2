@@ -16,3 +16,8 @@ username = cinder
 password = {{ cinder_openstack_service_password.cinder }}
 [oslo_concurrency]
 lock_path = /var/lib/cinder/tmp
+[oslo_messaging_rabbit]
+rabbit_quorum_queue = true
+rabbit_transient_quorum_queue = true
+use_queue_manager = true
+rabbit_stream_fanout = true

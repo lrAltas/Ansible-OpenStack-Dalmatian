@@ -30,6 +30,10 @@ lock_path = /var/lib/neutron/tmp
 [oslo_messaging_kafka]
 [oslo_messaging_notifications]
 [oslo_messaging_rabbit]
+rabbit_quorum_queue = true
+rabbit_transient_quorum_queue = true
+use_queue_manager = true
+rabbit_stream_fanout = true
 [oslo_middleware]
 [oslo_policy]
 [oslo_reports]

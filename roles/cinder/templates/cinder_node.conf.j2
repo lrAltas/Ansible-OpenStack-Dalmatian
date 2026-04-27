@@ -16,3 +16,8 @@ user_domain_name = default
 project_name = service
 username = cinder
 password = {{ cinder_openstack_service_password.cinder }}
+[oslo_messaging_rabbit]
+rabbit_quorum_queue = true
+rabbit_transient_quorum_queue = true
+use_queue_manager = true
+rabbit_stream_fanout = true
