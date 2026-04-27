@@ -54,6 +54,11 @@ lock_path = /var/lib/nova/tmp
 [oslo_messaging_kafka]
 [oslo_messaging_notifications]
 [oslo_messaging_rabbit]
+rabbit_quorum_queue = true
+rabbit_transient_quorum_queue = true
+use_queue_manager = true
+rabbit_stream_fanout = true
+rabbit_qos_prefetch_count = 10
 [oslo_middleware]
 [oslo_policy]
 [oslo_reports]
