@@ -1,5 +1,5 @@
 [client.nova]
-	key = AQDcRNlpAAAAABAAm5PI6fwr6l58noAK0w4qtA==
+	key = AQDaRfdpAAAAABAANAuTQVBCAawkgiaNXARIJA==
 	caps mgr = "profile rbd"
 	caps mon = "profile rbd"
 	caps osd = "profile rbd pool=volumes, profile rbd pool=images, profile rbd pool=vms, profile rbd pool=backups"

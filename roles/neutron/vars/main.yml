@@ -62,6 +62,12 @@ neutron_compute_packages:
 
 neutron_metadata_host: "{{ hostvars[groups['controller'][0]].ansible_host }}"
 
+# ==================== Debug / 跳过模式 ====================
+neutron_skip_nic_configure: false        # ←←← 你手动改成 true 就跳过整个网络配置（调试用）
+
+# ==================== 单网卡模式开关（如果你后面还想用）===================
+neutron_single_nic_mode: false
+
 # 这个地方需要根据你的实际情况来更改
 # You need to change the vlaues to your actual situation
 neutron_ovs_conf:

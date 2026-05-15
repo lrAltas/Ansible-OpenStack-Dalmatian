@@ -18,30 +18,99 @@
       ansible.builtin.meta: end_role
       when: neutron_mark_file.stat.exists
 
-- name: Configure nic and add OVS bridge
-  block:
-    # 第一步：先清空所有可能冲突的 IPv4 配置（尤其是 dns4）
-    - name: Clear IPv4 DNS and addresses on {{ neutron_ovs_conf.nic_name }}
-      community.general.nmcli:
-        conn_name: "{{ neutron_ovs_conf.nic_name }}"
-        ifname: "{{ neutron_ovs_conf.nic_name }}"
-        type: ethernet
-        dns4: []                  # 清空 DNS（关键！）
-        dns4_ignore_auto: true
-        gw4: ""                   # 清空网关
-        # addresses 不需要显式清空，method 改动时会自动处理
-        state: present
+# - name: Configure nic and add OVS bridge
+#   block:
+#     # 第一步：先清空所有可能冲突的 IPv4 配置（尤其是 dns4）
+#     - name: Clear IPv4 DNS and addresses on {{ neutron_ovs_conf.nic_name }}
+#       community.general.nmcli:
+#         conn_name: "{{ neutron_ovs_conf.nic_name }}"
+#         ifname: "{{ neutron_ovs_conf.nic_name }}"
+#         type: ethernet
+#         dns4: []                  # 清空 DNS（关键！）
+#         dns4_ignore_auto: true
+#         gw4: ""                   # 清空网关
+#         # addresses 不需要显式清空，method 改动时会自动处理
+#         state: present
 
-    # 第二步：再禁用 IPv4 + 忽略 IPv6
-    - name: Disable IPv4 and ignore IPv6 on {{ neutron_ovs_conf.nic_name }}
+#     # 第二步：再禁用 IPv4 + 忽略 IPv6
+#     - name: Disable IPv4 and ignore IPv6 on {{ neutron_ovs_conf.nic_name }}
+#       community.general.nmcli:
+#         conn_name: "{{ neutron_ovs_conf.nic_name }}"
+#         ifname: "{{ neutron_ovs_conf.nic_name }}"
+#         type: ethernet
+#         method4: disabled         # 现在可以安全设置了
+#         method6: ignore
+#         autoconnect: true
+#         state: present
+
+###################################################################################
+# 以下为测试内容,不一定稳定,如果想要快速部署开发,可以改为上面的那个写法.
+- name: Configure nic and add OVS bridge (带 Debug 跳过 + 版本兼容)
+  when: not neutron_skip_nic_configure | bool   # ← 如果 vars 里 skip_nic_configure: true 就直接跳过
+  block:
+    # ====================== 尝试你原来的两步写法（兼容老版本 NM）======================
+    - name: 【原写法】Step1 - 清空 IPv4 DNS 和网关
       community.general.nmcli:
         conn_name: "{{ neutron_ovs_conf.nic_name }}"
         ifname: "{{ neutron_ovs_conf.nic_name }}"
         type: ethernet
-        method4: disabled         # 现在可以安全设置了
+        dns4: []
+        dns4_ignore_auto: true
+        gw4: ""
+        state: present
+      register: neutron_clear_result
+      ignore_errors: true   # 允许失败，交给 rescue 处理
+
+    - name: 【原写法】Step2 - 禁用 IPv4 + 忽略 IPv6
+      community.general.nmcli:
+        conn_name: "{{ neutron_ovs_conf.nic_name }}"
+        ifname: "{{ neutron_ovs_conf.nic_name }}"
+        type: ethernet
+        method4: disabled
         method6: ignore
         autoconnect: true
         state: present
+      register: neutron_disable_result
+      ignore_errors: true
+      when: neutron_clear_result is succeeded   # 只有第一步成功才执行第二步
+
+    # =================== 如果上面原写法失败，自动 fallback 到新写法（推荐给 CentOS 9）======================
+    - name: 【新写法】Fallback - 一次性安全配置（解决 ipv4.method disabled 报错）
+      community.general.nmcli:
+        conn_name: "{{ neutron_ovs_conf.nic_name }}"
+        ifname: "{{ neutron_ovs_conf.nic_name }}"
+        type: ethernet
+        method4: disabled
+        method6: ignore
+        autoconnect: true
+        dns4: []                  # 一次性清空,但是尚不清楚部署会不会出现问题,先前因为NetWorkManager版本过新以及nmcli模块落后就导致过语法问题
+        gw4: ""
+        state: present
+      when: neutron_disable_result is failed or neutron_clear_result is failed
+
+    # ====================== 通用后续处理 ======================
+    - name: 等待网络稳定 3 秒
+      ansible.builtin.wait_for:
+        timeout: 3
+
+    - name: 显示最终 NetworkManager 状态
+      ansible.builtin.command: nmcli device show {{ neutron_ovs_conf.nic_name }}
+      register: neutron_nm_status
+      changed_when: false
+
+    - name: 打印当前网卡配置（Debug 用）
+      ansible.builtin.debug:
+        msg: "{{ neutron_nm_status.stdout_lines }}"
+  rescue:
+    - name: ❌ 网络配置失败！（可能是 NM 版本问题）
+      ansible.builtin.debug:
+        msg: "网络配置失败，请检查物理网卡是否还能 ping 通。建议手动在机器上执行 nmcli 命令修复。"
+      when: neutron_skip_nic_configure | bool is false
+  always:
+    - name: 无论成功失败都显示最终状态
+      ansible.builtin.debug:
+        msg: "网络配置完成（skip_nic_configure = {{ neutron_skip_nic_configure | default('未设置') }})"
+###################################################################################
 
 - name: Add OVS bridge
   block:

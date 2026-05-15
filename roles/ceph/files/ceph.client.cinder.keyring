@@ -1,5 +1,5 @@
 [client.cinder]
-	key = AQDWRNlpAAAAABAAdnfy/ArYAqWmD6TNrGnhuA==
+	key = AQDTRfdpAAAAABAAoqPgfd3U2FQx+D+knXi19g==
 	caps mgr = "profile rbd pool=volumes, profile rbd pool=vms"
 	caps mon = "profile rbd"
 	caps osd = "profile rbd pool=volumes, profile rbd pool=vms, profile rbd-read-only pool=images"
